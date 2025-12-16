@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeuroActive 2.2 - Universal</title>
-    
+    <title>NeuroActive 2.2 - Senior Edition</title>
+
     <!-- Carga de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Carga de Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <!-- Carga de SQL.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 
@@ -27,13 +27,13 @@
                         'neuro-purple': '#8B5CF6',
                         'neuro-bg': '#F3F4F6',
                         'neuro-card': '#FFFFFF',
-                        'neuro-text': '#1F2937'
+                        'neuro-text': '#111827' // Darker text for contrast
                     },
                     fontFamily: {
                         sans: ['Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
                     },
                     screens: {
-                        'xs': '475px', // Breakpoint extra para móviles anchos
+                        'xs': '475px',
                     }
                 }
             }
@@ -41,163 +41,164 @@
     </script>
 
     <style>
-        body { font-size: 18px; -webkit-tap-highlight-color: transparent; }
+        /* Aumentamos tamaño base de fuente para accesibilidad (20px) */
+        body { font-size: 20px; -webkit-tap-highlight-color: transparent; }
         .btn-neuro { transition: transform 0.1s, box-shadow 0.1s; }
-        .btn-neuro:active { transform: scale(0.96); }
-        .fade-in { animation: fadeIn 0.3s ease-in; }
+        .btn-neuro:active { transform: scale(0.98); } /* Efecto más sutil */
+        .fade-in { animation: fadeIn 0.4s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        /* Scroll suave y oculto estéticamente pero funcional */
+
         #app-container {
             scrollbar-width: thin;
-            scrollbar-color: #CBD5E1 transparent;
+            scrollbar-color: #94A3B8 transparent; /* Darker scrollbar */
         }
+
+        /* Utilidades para texto grande */
+        .text-huge { font-size: 1.5rem; line-height: 2rem; }
     </style>
 </head>
 <body class="bg-neuro-bg text-neuro-text h-screen flex flex-col font-sans select-none overflow-hidden">
 
     <!-- HEADER -->
-    <header class="bg-white shadow-md p-3 md:p-4 sticky top-0 z-50 flex-none">
+    <header class="bg-white shadow-md p-4 sticky top-0 z-50 flex-none">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl md:text-3xl font-bold text-neuro-primary flex items-center gap-2 truncate">
+            <h1 class="text-2xl md:text-3xl font-bold text-neuro-primary flex items-center gap-2 truncate">
                 🧠 NeuroActive
             </h1>
-            <div id="user-badge" class="hidden flex items-center gap-2">
-                <span class="text-sm md:text-base font-semibold bg-blue-100 text-blue-800 px-3 py-1 rounded-full truncate max-w-[120px]" id="header-username">Usuario</span>
-                <button onclick="app.logout()" class="text-red-500 font-bold border border-red-200 px-2 py-1 rounded text-xs md:text-sm hover:bg-red-50 whitespace-nowrap">Salir</button>
+            <div id="user-badge" class="hidden flex items-center gap-3">
+                <span class="text-base md:text-lg font-semibold bg-blue-100 text-blue-900 px-4 py-2 rounded-full truncate max-w-[150px]" id="header-username">Usuario</span>
+                <button onclick="app.logout()" class="text-red-600 font-bold border-2 border-red-200 px-3 py-2 rounded-lg text-sm md:text-base hover:bg-red-50 whitespace-nowrap min-h-[44px] min-w-[44px]">Salir</button>
             </div>
         </div>
     </header>
 
     <!-- MAIN CONTAINER -->
-    <!-- Eliminado mb-16 fijo, ahora el padding interno de las secciones maneja el espacio del navbar -->
     <main id="app-container" class="flex-grow p-4 md:p-6 max-w-5xl mx-auto w-full overflow-y-auto relative">
-        
+
         <!-- VISTA: LOGIN -->
-        <section id="view-login" class="flex flex-col items-center justify-center min-h-[70vh] fade-in">
-            <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md text-center border-t-8 border-neuro-primary mx-4">
-                <h2 class="text-2xl md:text-3xl font-bold mb-2 text-neuro-primary">Bienvenido</h2>
-                <p class="mb-8 text-gray-500">Entrenamiento cognitivo diario</p>
-                
-                <div class="space-y-4">
-                    <input type="text" id="input-username" placeholder="¿Su nombre?" 
-                        class="w-full p-4 text-xl border-2 border-gray-200 rounded-xl focus:border-neuro-primary focus:outline-none text-center bg-gray-50">
-                    
-                    <button id="btn-login" class="w-full bg-neuro-primary text-white text-xl font-bold py-4 rounded-xl shadow-lg hover:bg-blue-700 btn-neuro">
+        <section id="view-login" class="flex flex-col items-center justify-center min-h-[60vh] fade-in">
+            <div class="bg-white p-8 md:p-10 rounded-3xl shadow-xl w-full max-w-md text-center border-t-8 border-neuro-primary mx-4">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-neuro-primary">Bienvenido</h2>
+                <p class="mb-8 text-gray-600 text-xl">Entrenamiento cognitivo diario</p>
+
+                <div class="space-y-6">
+                    <label for="input-username" class="sr-only">Escriba su nombre</label>
+                    <input type="text" id="input-username" placeholder="Escriba su nombre aquí"
+                        class="w-full p-5 text-2xl border-2 border-gray-300 rounded-xl focus:border-neuro-primary focus:outline-none text-center bg-gray-50 text-gray-900 placeholder-gray-500">
+
+                    <button id="btn-login" class="w-full bg-neuro-primary text-white text-2xl font-bold py-5 rounded-xl shadow-lg hover:bg-blue-700 btn-neuro">
                         COMENZAR
                     </button>
                 </div>
-                <p id="db-status" class="mt-6 text-sm text-gray-400">Sistema listo.</p>
+                <p id="db-status" class="mt-8 text-base text-gray-500 italic">Cargando sistema...</p>
             </div>
         </section>
 
         <!-- VISTA: SELECCIÓN DE JUEGOS (HOME) -->
-        <!-- pb-32 asegura que el contenido final no quede tapado por el navbar -->
-        <section id="view-home" class="hidden fade-in space-y-6 pb-32">
-            <div class="text-center mb-2">
-                <h2 class="text-xl md:text-2xl font-bold text-gray-800">¿Qué desea entrenar hoy?</h2>
+        <section id="view-home" class="hidden fade-in space-y-8 pb-40">
+            <div class="text-center mb-4">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900">¿Qué desea entrenar hoy?</h2>
             </div>
 
             <!-- Categoría: Memoria -->
-            <div class="space-y-3">
-                <h3 class="text-lg font-bold text-blue-600 border-b-2 border-blue-100 pb-1 px-1">🔵 Memoria Visoespacial</h3>
-                <!-- Grid adaptable: 1 col en móvil, 2 en tablets/pc -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                    <button onclick="app.startGame('memoryMatrix')" class="bg-white p-4 rounded-2xl shadow-sm border-l-8 border-blue-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group">
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-blue-700 border-b-2 border-blue-200 pb-2 px-1">🔵 Memoria Visoespacial</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <button onclick="app.startGame('memoryMatrix')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-blue-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
                         <div>
-                            <div class="font-bold text-lg group-hover:text-blue-600 transition-colors">Matriz de Memoria</div>
-                            <div class="text-sm text-gray-500">Recuerda las posiciones</div>
+                            <div class="font-bold text-xl group-hover:text-blue-700 transition-colors">Matriz de Memoria</div>
+                            <div class="text-base text-gray-600 mt-1">Recuerda las posiciones</div>
                         </div>
-                        <span class="text-3xl">🧩</span>
+                        <span class="text-4xl">🧩</span>
                     </button>
-                    <button onclick="app.startGame('spatialPath')" class="bg-white p-4 rounded-2xl shadow-sm border-l-8 border-blue-400 text-left hover:shadow-md btn-neuro flex justify-between items-center group">
+                    <button onclick="app.startGame('spatialPath')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-blue-400 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
                         <div>
-                            <div class="font-bold text-lg group-hover:text-blue-500 transition-colors">Ruta Espacial</div>
-                            <div class="text-sm text-gray-500">Sigue la secuencia</div>
+                            <div class="font-bold text-xl group-hover:text-blue-600 transition-colors">Ruta Espacial</div>
+                            <div class="text-base text-gray-600 mt-1">Sigue la secuencia</div>
                         </div>
-                        <span class="text-3xl">📍</span>
+                        <span class="text-4xl">📍</span>
                     </button>
                 </div>
             </div>
 
             <!-- Categoría: Atención -->
-            <div class="space-y-3">
-                <h3 class="text-lg font-bold text-green-600 border-b-2 border-green-100 pb-1 px-1">🟢 Control y Atención</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                    <button onclick="app.startGame('stroop')" class="bg-white p-4 rounded-2xl shadow-sm border-l-8 border-green-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group">
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-green-700 border-b-2 border-green-200 pb-2 px-1">🟢 Control y Atención</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <button onclick="app.startGame('stroop')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-green-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
                         <div>
-                            <div class="font-bold text-lg group-hover:text-green-600 transition-colors">Colores Confusos</div>
-                            <div class="text-sm text-gray-500">Inhibición (Stroop)</div>
+                            <div class="font-bold text-xl group-hover:text-green-700 transition-colors">Colores Confusos</div>
+                            <div class="text-base text-gray-600 mt-1">Inhibición (Stroop)</div>
                         </div>
-                        <span class="text-3xl">🎨</span>
+                        <span class="text-4xl">🎨</span>
                     </button>
-                    <button onclick="app.startGame('goNoGo')" class="bg-white p-4 rounded-2xl shadow-sm border-l-8 border-green-400 text-left hover:shadow-md btn-neuro flex justify-between items-center group">
+                    <button onclick="app.startGame('goNoGo')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-green-400 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
                         <div>
-                            <div class="font-bold text-lg group-hover:text-green-500 transition-colors">Semáforo (Go/No-Go)</div>
-                            <div class="text-sm text-gray-500">Control de impulsos</div>
+                            <div class="font-bold text-xl group-hover:text-green-600 transition-colors">Semáforo (Go/No-Go)</div>
+                            <div class="text-base text-gray-600 mt-1">Control de impulsos</div>
                         </div>
-                        <span class="text-3xl">🚦</span>
+                        <span class="text-4xl">🚦</span>
                     </button>
                 </div>
             </div>
 
             <!-- Categoría: Lenguaje -->
-            <div class="space-y-3">
-                <h3 class="text-lg font-bold text-yellow-600 border-b-2 border-yellow-100 pb-1 px-1">🟡 Lenguaje</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                    <button onclick="app.startGame('languageOrder')" class="bg-white p-4 rounded-2xl shadow-sm border-l-8 border-yellow-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group">
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-yellow-700 border-b-2 border-yellow-200 pb-2 px-1">🟡 Lenguaje</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <button onclick="app.startGame('languageOrder')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-yellow-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
                         <div>
-                            <div class="font-bold text-lg group-hover:text-yellow-600 transition-colors">Ordenar Frases</div>
-                            <div class="text-sm text-gray-500">Sintaxis y lógica</div>
+                            <div class="font-bold text-xl group-hover:text-yellow-700 transition-colors">Ordenar Frases</div>
+                            <div class="text-base text-gray-600 mt-1">Sintaxis y lógica</div>
                         </div>
-                        <span class="text-3xl">📝</span>
+                        <span class="text-4xl">📝</span>
                     </button>
-                    <button onclick="app.startGame('wordAssoc')" class="bg-white p-4 rounded-2xl shadow-sm border-l-8 border-yellow-400 text-left hover:shadow-md btn-neuro flex justify-between items-center group">
+                    <button onclick="app.startGame('wordAssoc')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-yellow-400 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
                         <div>
-                            <div class="font-bold text-lg group-hover:text-yellow-500 transition-colors">Asociación</div>
-                            <div class="text-sm text-gray-500">Sinónimos y conceptos</div>
+                            <div class="font-bold text-xl group-hover:text-yellow-600 transition-colors">Asociación</div>
+                            <div class="text-base text-gray-600 mt-1">Sinónimos y conceptos</div>
                         </div>
-                        <span class="text-3xl">🔗</span>
+                        <span class="text-4xl">🔗</span>
                     </button>
                 </div>
             </div>
 
             <!-- Categoría: Velocidad -->
-            <div class="space-y-3">
-                <h3 class="text-lg font-bold text-purple-600 border-b-2 border-purple-100 pb-1 px-1">🟣 Velocidad Mental</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                    <button onclick="app.startGame('symbolSearch')" class="bg-white p-4 rounded-2xl shadow-sm border-l-8 border-purple-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group">
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-purple-700 border-b-2 border-purple-200 pb-2 px-1">🟣 Velocidad Mental</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <button onclick="app.startGame('symbolSearch')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-purple-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
                         <div>
-                            <div class="font-bold text-lg group-hover:text-purple-600 transition-colors">Caza de Símbolos</div>
-                            <div class="text-sm text-gray-500">Escaneo visual rápido</div>
+                            <div class="font-bold text-xl group-hover:text-purple-700 transition-colors">Caza de Símbolos</div>
+                            <div class="text-base text-gray-600 mt-1">Escaneo visual rápido</div>
                         </div>
-                        <span class="text-3xl">⚡</span>
+                        <span class="text-4xl">⚡</span>
                     </button>
                 </div>
             </div>
         </section>
 
         <!-- VISTA: ESTADÍSTICAS (DASHBOARD) -->
-        <section id="view-stats" class="hidden fade-in space-y-6 pb-32">
-            <h2 class="text-2xl font-bold text-gray-800 text-center">Informe de Progreso</h2>
-            
-            <div class="bg-gradient-to-r from-blue-600 to-blue-400 rounded-2xl p-6 text-white text-center shadow-lg mx-auto max-w-md">
-                <p class="text-lg opacity-90">Puntuación Global</p>
-                <div class="text-5xl font-bold mt-2" id="global-score">0</div>
-                <p class="text-xs mt-2 opacity-80">Acumulado semanal</p>
+        <section id="view-stats" class="hidden fade-in space-y-6 pb-40">
+            <h2 class="text-3xl font-bold text-gray-900 text-center">Informe de Progreso</h2>
+
+            <div class="bg-gradient-to-r from-blue-700 to-blue-500 rounded-2xl p-8 text-white text-center shadow-lg mx-auto max-w-md">
+                <p class="text-xl opacity-90 font-medium">Puntuación Global</p>
+                <div class="text-6xl font-black mt-3" id="global-score">0</div>
+                <p class="text-sm mt-3 opacity-90">Acumulado semanal</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white p-4 rounded-2xl shadow-md">
-                    <h3 class="text-lg font-bold text-gray-700 mb-2 text-center">Perfil Cognitivo</h3>
-                    <div class="h-64 w-full relative">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-2xl shadow-md border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Perfil Cognitivo</h3>
+                    <div class="h-72 w-full relative">
                         <canvas id="radarChart"></canvas>
                     </div>
                 </div>
 
-                <div class="bg-white p-4 rounded-2xl shadow-md">
-                    <h3 class="text-lg font-bold text-gray-700 mb-2 text-center">Actividad (7 días)</h3>
-                    <div class="h-48 w-full">
+                <div class="bg-white p-5 rounded-2xl shadow-md border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Actividad (7 días)</h3>
+                    <div class="h-60 w-full">
                         <canvas id="lineChart"></canvas>
                     </div>
                 </div>
@@ -207,22 +208,22 @@
         <!-- VISTA: JUEGO ACTIVO -->
         <section id="view-game" class="hidden flex flex-col h-full fade-in pb-4">
             <!-- Barra superior del juego -->
-            <div class="flex-none w-full flex justify-between items-center mb-4 bg-white p-3 rounded-xl shadow-sm z-10">
-                <button onclick="app.switchTab('home')" class="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg font-bold text-gray-600 flex items-center gap-1 transition">
-                    <span>⬅</span> Salir
+            <div class="flex-none w-full flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm z-10 border border-gray-100">
+                <button onclick="app.switchTab('home')" class="text-base bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition min-h-[50px]">
+                    <span class="text-xl">⬅</span> Salir
                 </button>
-                <div class="text-lg font-bold text-neuro-primary">
-                    <span id="game-score" class="text-2xl font-black">0</span> pts
+                <div class="text-xl font-bold text-neuro-primary">
+                    <span id="game-score" class="text-3xl font-black">0</span> pts
                 </div>
             </div>
 
-            <!-- Área de juego con scroll interno si es necesario -->
-            <div id="game-scroll-container" class="flex-grow overflow-y-auto flex flex-col items-center justify-start w-full pb-20">
-                <div id="game-area" class="w-full max-w-md bg-white rounded-3xl shadow-inner p-4 min-h-[300px] flex flex-col items-center justify-center relative">
+            <!-- Área de juego -->
+            <div id="game-scroll-container" class="flex-grow overflow-y-auto flex flex-col items-center justify-start w-full pb-24">
+                <div id="game-area" class="w-full max-w-md bg-white rounded-3xl shadow-lg border border-gray-100 p-6 min-h-[350px] flex flex-col items-center justify-center relative">
                     <!-- Inyección del juego -->
                 </div>
-                
-                <div id="game-message" class="mt-4 text-xl text-center font-bold text-gray-700 px-4 w-full min-h-[3rem]">
+
+                <div id="game-message" class="mt-6 text-2xl text-center font-bold text-gray-800 px-4 w-full min-h-[4rem] flex items-center justify-center">
                     Seleccione un juego
                 </div>
             </div>
@@ -231,15 +232,14 @@
     </main>
 
     <!-- NAVIGATION TABS -->
-    <!-- Z-50 para asegurar que siempre esté encima -->
-    <nav id="nav-tabs" class="hidden fixed bottom-0 w-full bg-white shadow-[0_-4px_15px_rgba(0,0,0,0.1)] border-t border-gray-100 flex justify-around p-2 z-50 pb-safe safe-area-bottom">
-        <button onclick="app.switchTab('home')" class="flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-lg active:bg-gray-50" id="tab-home">
-            <span class="text-3xl mb-1">🎮</span>
-            <span class="text-[10px] md:text-xs font-bold uppercase tracking-wide">Juegos</span>
+    <nav id="nav-tabs" class="hidden fixed bottom-0 w-full bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.15)] border-t border-gray-200 flex justify-around p-3 z-50 pb-safe safe-area-bottom h-24 items-start pt-4">
+        <button onclick="app.switchTab('home')" class="flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50" id="tab-home">
+            <span class="text-4xl mb-1">🎮</span>
+            <span class="text-sm md:text-base font-bold uppercase tracking-wide">Juegos</span>
         </button>
-        <button onclick="app.switchTab('stats')" class="flex flex-col items-center p-2 w-full text-gray-400 hover:text-neuro-primary transition duration-200 rounded-lg active:bg-gray-50" id="tab-stats">
-            <span class="text-3xl mb-1">📊</span>
-            <span class="text-[10px] md:text-xs font-bold uppercase tracking-wide">Progreso</span>
+        <button onclick="app.switchTab('stats')" class="flex flex-col items-center p-2 w-full text-gray-400 hover:text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50" id="tab-stats">
+            <span class="text-4xl mb-1">📊</span>
+            <span class="text-sm md:text-base font-bold uppercase tracking-wide">Progreso</span>
         </button>
     </nav>
 
@@ -259,10 +259,22 @@
             constructor() {
                 this.db = null;
                 this.SQL = null;
+                this.mode = 'unknown'; // 'sql' or 'local'
+                this.localData = { users: [], results: [] };
             }
             async init() {
+                // Intentar cargar datos locales
+                const savedLocal = localStorage.getItem("neuroactive_local_fallback");
+                if (savedLocal) {
+                    this.localData = JSON.parse(savedLocal);
+                }
+
                 try {
+                    // Intento de carga SQL.js
+                    if (typeof initSqlJs !== 'function') throw new Error("SQL.js not loaded");
+
                     this.SQL = await initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}` });
+                    this.mode = 'sql';
                     const savedDb = localStorage.getItem("neuroactive_v2_db");
                     if (savedDb) {
                         this.db = new this.SQL.Database(new Uint8Array(JSON.parse(savedDb)));
@@ -270,47 +282,99 @@
                         this.db = new this.SQL.Database();
                         this.createTables();
                     }
-                    return true;
-                } catch (e) { console.error("Error BD:", e); return false; }
+                    return { success: true, mode: 'sql' };
+                } catch (e) {
+                    console.warn("SQL.js falló, usando modo localStorage:", e);
+                    this.mode = 'local';
+                    return { success: true, mode: 'local' }; // Return true but indicate local mode
+                }
             }
             createTables() {
+                if(this.mode !== 'sql') return;
                 this.db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT); CREATE TABLE IF NOT EXISTS results (id INTEGER PRIMARY KEY, user_id INTEGER, game_type TEXT, category TEXT, score INTEGER, timestamp INTEGER);`);
                 this.save();
             }
             save() {
-                localStorage.setItem("neuroactive_v2_db", JSON.stringify(Array.from(this.db.export())));
+                if (this.mode === 'sql' && this.db) {
+                    try {
+                        localStorage.setItem("neuroactive_v2_db", JSON.stringify(Array.from(this.db.export())));
+                    } catch(e) { console.error("Save SQL error", e); }
+                } else {
+                    localStorage.setItem("neuroactive_local_fallback", JSON.stringify(this.localData));
+                }
             }
             loginUser(name) {
-                let stmt = this.db.prepare("SELECT id, name FROM users WHERE name = :name");
-                let user = stmt.getAsObject({':name': name});
-                stmt.free();
-                if (!user.id) {
-                    this.db.run("INSERT INTO users (name) VALUES (?)", [name]);
-                    this.save();
-                    const res = this.db.exec("SELECT last_insert_rowid()");
-                    user = { id: res[0].values[0][0], name: name };
+                if (this.mode === 'sql') {
+                    let stmt = this.db.prepare("SELECT id, name FROM users WHERE name = :name");
+                    let user = stmt.getAsObject({':name': name});
+                    stmt.free();
+                    if (!user.id) {
+                        this.db.run("INSERT INTO users (name) VALUES (?)", [name]);
+                        this.save();
+                        const res = this.db.exec("SELECT last_insert_rowid()");
+                        user = { id: res[0].values[0][0], name: name };
+                    }
+                    return user;
+                } else {
+                    // Fallback Logic
+                    let user = this.localData.users.find(u => u.name === name);
+                    if (!user) {
+                        user = { id: Date.now(), name: name };
+                        this.localData.users.push(user);
+                        this.save();
+                    }
+                    return user;
                 }
-                return user;
             }
             saveResult(userId, gameType, score) {
                 const category = GAME_CONFIG[gameType] ? GAME_CONFIG[gameType].category : 'General';
-                this.db.run("INSERT INTO results (user_id, game_type, category, score, timestamp) VALUES (?, ?, ?, ?, ?)", [userId, gameType, category, score, Date.now()]);
-                this.save();
+                if (this.mode === 'sql') {
+                    this.db.run("INSERT INTO results (user_id, game_type, category, score, timestamp) VALUES (?, ?, ?, ?, ?)", [userId, gameType, category, score, Date.now()]);
+                    this.save();
+                } else {
+                    this.localData.results.push({
+                        id: Date.now(),
+                        user_id: userId,
+                        game_type: gameType,
+                        category: category,
+                        score: score,
+                        timestamp: Date.now()
+                    });
+                    this.save();
+                }
             }
             getStats(userId) {
-                const totalRes = this.db.exec(`SELECT SUM(score) FROM results WHERE user_id = ${userId}`);
-                const totalScore = totalRes[0]?.values[0][0] || 0;
-                const catRes = this.db.exec(`SELECT category, SUM(score) FROM results WHERE user_id = ${userId} GROUP BY category`);
-                const categoryScores = { 'Memoria': 0, 'Atención': 0, 'Lenguaje': 0, 'Velocidad': 0 };
-                if(catRes.length > 0) catRes[0].values.forEach(row => { categoryScores[row[0]] = row[1]; });
-                const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-                const dailyRes = this.db.exec(`SELECT timestamp, score FROM results WHERE user_id = ${userId} AND timestamp > ${sevenDaysAgo}`);
-                const dailyScores = {};
-                if (dailyRes.length > 0) dailyRes[0].values.forEach(row => {
-                    const date = new Date(row[0]).toLocaleDateString(undefined, {weekday: 'short'});
-                    dailyScores[date] = (dailyScores[date] || 0) + row[1];
-                });
-                return { totalScore, categoryScores, dailyScores };
+                if (this.mode === 'sql') {
+                    const totalRes = this.db.exec(`SELECT SUM(score) FROM results WHERE user_id = ${userId}`);
+                    const totalScore = totalRes[0]?.values[0][0] || 0;
+                    const catRes = this.db.exec(`SELECT category, SUM(score) FROM results WHERE user_id = ${userId} GROUP BY category`);
+                    const categoryScores = { 'Memoria': 0, 'Atención': 0, 'Lenguaje': 0, 'Velocidad': 0 };
+                    if(catRes.length > 0) catRes[0].values.forEach(row => { categoryScores[row[0]] = row[1]; });
+                    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+                    const dailyRes = this.db.exec(`SELECT timestamp, score FROM results WHERE user_id = ${userId} AND timestamp > ${sevenDaysAgo}`);
+                    const dailyScores = {};
+                    if (dailyRes.length > 0) dailyRes[0].values.forEach(row => {
+                        const date = new Date(row[0]).toLocaleDateString(undefined, {weekday: 'short'});
+                        dailyScores[date] = (dailyScores[date] || 0) + row[1];
+                    });
+                    return { totalScore, categoryScores, dailyScores };
+                } else {
+                    // Fallback Logic
+                    const userResults = this.localData.results.filter(r => r.user_id == userId);
+                    const totalScore = userResults.reduce((sum, r) => sum + r.score, 0);
+                    const categoryScores = { 'Memoria': 0, 'Atención': 0, 'Lenguaje': 0, 'Velocidad': 0 };
+                    userResults.forEach(r => {
+                        if (categoryScores[r.category] !== undefined) categoryScores[r.category] += r.score;
+                    });
+
+                    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+                    const dailyScores = {};
+                    userResults.filter(r => r.timestamp > sevenDaysAgo).forEach(r => {
+                        const date = new Date(r.timestamp).toLocaleDateString(undefined, {weekday: 'short'});
+                        dailyScores[date] = (dailyScores[date] || 0) + r.score;
+                    });
+                    return { totalScore, categoryScores, dailyScores };
+                }
             }
         }
 
@@ -325,9 +389,9 @@
                 this.active = false;
             }
             clear() { this.container.innerHTML = ''; }
-            message(text, color='text-gray-700') { 
-                this.msgEl.className = `mt-4 text-xl text-center font-bold ${color} px-4 transition-all duration-300`;
-                this.msgEl.innerText = text; 
+            message(text, color='text-gray-800') {
+                this.msgEl.className = `mt-6 text-2xl text-center font-bold ${color} px-4 transition-all duration-300 flex items-center justify-center min-h-[4rem]`;
+                this.msgEl.innerText = text;
             }
             end() { this.active = false; this.onEnd(this.score); }
         }
@@ -338,17 +402,17 @@
                 this.clear();
                 this.active = false;
                 this.message(`Nivel ${this.level}: Memoriza`);
-                
+
                 let size = this.level < 3 ? 3 : (this.level < 6 ? 4 : 5);
                 let count = 2 + Math.floor(this.level/2);
 
-                this.container.className = "w-full max-w-xs grid gap-2 mx-auto transition-all duration-300";
+                this.container.className = "w-full max-w-xs grid gap-3 mx-auto transition-all duration-300";
                 this.container.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
 
                 let cells = [];
                 for(let i=0; i<size*size; i++) {
                     let d = document.createElement('div');
-                    d.className = 'bg-gray-200 w-full aspect-square rounded-lg cursor-pointer transition-all duration-200 hover:brightness-95';
+                    d.className = 'bg-gray-200 w-full aspect-square rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-300';
                     d.onclick = () => this.click(i, d);
                     this.container.appendChild(d);
                     cells.push(d);
@@ -362,18 +426,19 @@
                 this.pattern = pattern;
                 this.userPattern = [];
 
+                // Timings adjusted for seniors
                 setTimeout(() => {
                     pattern.forEach(i => cells[i].classList.replace('bg-gray-200', 'bg-neuro-primary'));
                     setTimeout(() => {
                         pattern.forEach(i => cells[i].classList.replace('bg-neuro-primary', 'bg-gray-200'));
                         this.active = true;
                         this.message("¡Repite el patrón!");
-                    }, 1000 + (this.level * 200));
-                }, 500);
+                    }, 1500 + (this.level * 300)); // Slower show time
+                }, 800);
             }
             click(i, el) {
                 if(!this.active || this.userPattern.includes(i)) return;
-                
+
                 if(this.pattern.includes(i)) {
                     el.classList.replace('bg-gray-200', 'bg-neuro-secondary');
                     this.userPattern.push(i);
@@ -382,12 +447,12 @@
                         this.onScore(this.score);
                         this.level++;
                         this.active = false;
-                        setTimeout(() => this.next(), 800);
+                        setTimeout(() => this.next(), 1000); // Slower transition
                     }
                 } else {
                     el.classList.replace('bg-gray-200', 'bg-neuro-danger');
-                    this.message("¡Incorrecto!", 'text-red-500');
-                    setTimeout(() => this.end(), 1200);
+                    this.message("¡Incorrecto!", 'text-red-600');
+                    setTimeout(() => this.end(), 1500);
                 }
             }
         }
@@ -399,12 +464,12 @@
                 this.active = false;
                 this.message(`Nivel ${this.level}`);
 
-                this.container.className = "w-full max-w-[280px] grid grid-cols-3 gap-4 mx-auto";
-                
+                this.container.className = "w-full max-w-[300px] grid grid-cols-3 gap-5 mx-auto";
+
                 let cells = [];
                 for(let i=0; i<9; i++) {
                     let d = document.createElement('div');
-                    d.className = 'bg-gray-100 border-2 border-gray-200 w-full aspect-square rounded-full shadow-sm cursor-pointer transition-transform active:scale-90';
+                    d.className = 'bg-gray-100 border-2 border-gray-300 w-full aspect-square rounded-full shadow-sm cursor-pointer transition-transform active:scale-95';
                     d.onclick = () => this.click(i, d);
                     this.container.appendChild(d);
                     cells.push(d);
@@ -415,13 +480,13 @@
                 for(let i=0; i<length; i++) this.sequence.push(Math.floor(Math.random()*9));
                 this.userStep = 0;
 
-                await new Promise(r => setTimeout(r, 500));
-                
+                await new Promise(r => setTimeout(r, 800));
+
                 for(let idx of this.sequence) {
-                    cells[idx].classList.add('bg-neuro-primary', 'scale-110', 'border-blue-600');
-                    await new Promise(r => setTimeout(r, 600));
-                    cells[idx].classList.remove('bg-neuro-primary', 'scale-110', 'border-blue-600');
-                    await new Promise(r => setTimeout(r, 200));
+                    cells[idx].classList.add('bg-neuro-primary', 'scale-110', 'border-blue-700');
+                    await new Promise(r => setTimeout(r, 1000)); // Slower step (1s)
+                    cells[idx].classList.remove('bg-neuro-primary', 'scale-110', 'border-blue-700');
+                    await new Promise(r => setTimeout(r, 300));
                 }
                 this.active = true;
                 this.message("Tu turno");
@@ -429,7 +494,7 @@
             click(i, el) {
                 if(!this.active) return;
                 el.classList.add('bg-yellow-200');
-                setTimeout(()=>el.classList.remove('bg-yellow-200'), 150);
+                setTimeout(()=>el.classList.remove('bg-yellow-200'), 200);
 
                 if(i === this.sequence[this.userStep]) {
                     this.userStep++;
@@ -438,11 +503,11 @@
                         this.onScore(this.score);
                         this.level++;
                         this.active = false;
-                        setTimeout(() => this.next(), 800);
+                        setTimeout(() => this.next(), 1000);
                     }
                 } else {
-                    this.message("Error de secuencia", "text-red-500");
-                    setTimeout(() => this.end(), 1200);
+                    this.message("Error de secuencia", "text-red-600");
+                    setTimeout(() => this.end(), 1500);
                 }
             }
         }
@@ -453,36 +518,36 @@
                 this.clear();
                 if(this.rounds >= 10) return this.end();
                 this.message("¿De qué COLOR es la tinta?");
-                
+
                 const colors = [
-                    {n:'ROJO', c:'text-red-500'}, {n:'AZUL', c:'text-blue-500'}, {n:'VERDE', c:'text-green-500'}
+                    {n:'ROJO', c:'text-red-600'}, {n:'AZUL', c:'text-blue-600'}, {n:'VERDE', c:'text-green-600'}
                 ];
                 let txtIdx = Math.floor(Math.random()*3);
                 let colIdx = Math.random() > 0.4 ? (txtIdx + 1)%3 : txtIdx;
-                
+
                 this.container.className = "flex flex-col items-center w-full";
 
                 let word = document.createElement('div');
                 word.innerText = colors[txtIdx].n;
-                word.className = `text-5xl md:text-7xl font-black mb-8 mt-4 ${colors[colIdx].c}`;
+                word.className = `text-6xl md:text-8xl font-black mb-10 mt-6 ${colors[colIdx].c}`;
                 this.container.appendChild(word);
 
                 let btnCont = document.createElement('div');
-                btnCont.className = "grid grid-cols-3 gap-2 w-full";
+                btnCont.className = "grid grid-cols-3 gap-4 w-full";
                 colors.forEach((c, i) => {
                     let b = document.createElement('button');
                     b.innerText = c.n;
-                    b.className = "py-4 bg-gray-50 border-2 border-gray-200 rounded-xl font-bold text-gray-700 active:bg-gray-200 active:scale-95 transition-all text-sm md:text-base";
+                    b.className = "py-6 bg-gray-50 border-2 border-gray-300 rounded-xl font-bold text-gray-800 active:bg-gray-200 active:scale-95 transition-all text-lg md:text-xl";
                     b.onclick = () => {
                         if(i === colIdx) {
                             this.score += 15;
                             this.onScore(this.score);
-                            this.message("¡Bien!", "text-green-500");
+                            this.message("¡Bien!", "text-green-600");
                         } else {
-                            this.message("Fallaste", "text-red-500");
+                            this.message("Fallaste", "text-red-600");
                         }
                         this.rounds++;
-                        setTimeout(() => this.next(), 600);
+                        setTimeout(() => this.next(), 1000);
                     }
                     btnCont.appendChild(b);
                 });
@@ -492,11 +557,11 @@
 
         class GoNoGoGame extends GameEngine {
             start() {
-                this.score = 0; this.rounds = 0; 
+                this.score = 0; this.rounds = 0;
                 this.container.className = "flex flex-col items-center justify-center w-full h-full";
                 this.container.innerHTML = `
-                    <div id="stimulus" class="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-gray-200 mb-8 transition-all duration-200"></div>
-                    <button id="go-btn" class="w-full max-w-xs bg-neuro-primary text-white py-5 rounded-2xl text-2xl font-bold shadow-lg active:scale-95 touch-manipulation">¡PULSAR!</button>
+                    <div id="stimulus" class="w-40 h-40 md:w-52 md:h-52 rounded-3xl bg-gray-200 mb-10 transition-all duration-200 border-4 border-transparent"></div>
+                    <button id="go-btn" class="w-full max-w-sm bg-neuro-primary text-white py-6 rounded-2xl text-3xl font-bold shadow-lg active:scale-95 touch-manipulation">¡PULSAR!</button>
                 `;
                 this.stimulus = document.getElementById('stimulus');
                 this.btn = document.getElementById('go-btn');
@@ -505,31 +570,31 @@
             }
             next() {
                 if(this.rounds >= 15) return this.end();
-                this.stimulus.className = "w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-gray-200 mb-8";
+                this.stimulus.className = "w-40 h-40 md:w-52 md:h-52 rounded-3xl bg-gray-200 mb-10 border-4 border-gray-300";
                 this.message("Espera al VERDE...");
-                
+
                 setTimeout(() => {
                     if(!this.active && this.rounds < 15) {
                         this.active = true;
                         this.isTarget = Math.random() > 0.3;
                         if(this.isTarget) {
-                            this.stimulus.className = "w-32 h-32 md:w-40 md:h-40 rounded-md bg-green-500 mb-8 shadow-xl scale-110";
+                            this.stimulus.className = "w-40 h-40 md:w-52 md:h-52 rounded-xl bg-green-500 mb-10 shadow-2xl scale-110 border-4 border-green-700";
                         } else {
-                            this.stimulus.className = "w-32 h-32 md:w-40 md:h-40 rounded-full bg-red-500 mb-8 shadow-xl";
+                            this.stimulus.className = "w-40 h-40 md:w-52 md:h-52 rounded-full bg-red-500 mb-10 shadow-2xl border-4 border-red-700";
                         }
                         this.timeout = setTimeout(() => {
                             if(this.active) {
-                                if(this.isTarget) this.message("¡Lento!", "text-orange-500");
-                                else { 
-                                    this.score += 5; 
+                                if(this.isTarget) this.message("¡Lento!", "text-orange-600");
+                                else {
+                                    this.score += 5;
                                     this.onScore(this.score);
-                                    this.message("Bien (Inhibición)", "text-green-500");
+                                    this.message("Bien (Inhibición)", "text-green-600");
                                 }
                                 this.finishRound();
                             }
-                        }, 1500);
+                        }, 2000); // Increased window to 2s
                     }
-                }, 1000 + Math.random()*1500);
+                }, 1500 + Math.random()*2000); // Slower start
             }
             handleClick() {
                 if(!this.active) return;
@@ -537,31 +602,31 @@
                 if(this.isTarget) {
                     this.score += 15;
                     this.onScore(this.score);
-                    this.message("¡Excelente!", "text-green-500");
+                    this.message("¡Excelente!", "text-green-600");
                 } else {
                     this.score -= 5;
                     this.onScore(this.score);
-                    this.message("¡NO!", "text-red-500");
+                    this.message("¡NO!", "text-red-600");
                 }
                 this.finishRound();
             }
             finishRound() {
                 this.active = false;
                 this.rounds++;
-                setTimeout(() => this.next(), 800);
+                setTimeout(() => this.next(), 1200);
             }
         }
 
         class LanguageOrderGame extends GameEngine {
             start() {
                 this.score = 0; this.qIdx = 0;
-                this.phrases = ["El cielo es azul", "Me gusta el pan", "Hoy hace sol", "El perro corre", "La flor es roja"];
+                this.phrases = ["El cielo es azul", "Me gusta el pan", "Hoy hace sol", "El perro corre", "La flor es roja", "La luna brilla", "El agua moja", "Como frutas dulces"];
                 this.next();
             }
             next() {
                 this.clear();
                 if(this.qIdx >= this.phrases.length) return this.end();
-                
+
                 let target = this.phrases[this.qIdx];
                 let words = target.split(' ').sort(() => Math.random()-0.5);
                 let current = [];
@@ -570,16 +635,16 @@
                 this.container.className = "w-full max-w-md flex flex-col";
 
                 let zone = document.createElement('div');
-                zone.className = "w-full min-h-[70px] bg-blue-50 border-2 border-dashed border-blue-200 rounded-xl mb-6 flex flex-wrap gap-2 p-3 justify-center items-center transition-all";
+                zone.className = "w-full min-h-[90px] bg-blue-50 border-4 border-dashed border-blue-200 rounded-xl mb-8 flex flex-wrap gap-3 p-4 justify-center items-center transition-all";
                 this.container.appendChild(zone);
 
                 let bank = document.createElement('div');
-                bank.className = "flex flex-wrap gap-2 justify-center content-start";
-                
+                bank.className = "flex flex-wrap gap-3 justify-center content-start";
+
                 words.forEach(w => {
                     let b = document.createElement('button');
                     b.innerText = w;
-                    b.className = "bg-white border shadow-sm px-4 py-2 rounded-lg text-lg font-medium active:scale-95 transition-transform";
+                    b.className = "bg-white border-2 border-gray-300 shadow-sm px-5 py-3 rounded-xl text-xl font-bold text-gray-800 active:scale-95 transition-transform min-h-[50px]";
                     b.onclick = () => {
                         if(b.parentElement === bank) {
                             zone.appendChild(b);
@@ -591,9 +656,9 @@
                         if(current.join(' ') === target) {
                             this.score += 20;
                             this.onScore(this.score);
-                            this.message("¡Perfecto!", "text-green-500");
+                            this.message("¡Perfecto!", "text-green-600");
                             this.qIdx++;
-                            setTimeout(() => this.next(), 800);
+                            setTimeout(() => this.next(), 1200);
                         }
                     };
                     bank.appendChild(b);
@@ -609,40 +674,41 @@
                     { type: "SINÓNIMO", w: "ALEGRE", opt: ["Triste", "Feliz", "Rápido"], ans: 1 },
                     { type: "ANTÓNIMO", w: "CALIENTE", opt: ["Frío", "Fuego", "Tibio"], ans: 0 },
                     { type: "SINÓNIMO", w: "AUTO", opt: ["Rueda", "Coche", "Camino"], ans: 1 },
-                    { type: "ANTÓNIMO", w: "LLENO", opt: ["Vacío", "Todo", "Alto"], ans: 0 }
+                    { type: "ANTÓNIMO", w: "LLENO", opt: ["Vacío", "Todo", "Alto"], ans: 0 },
+                    { type: "SINÓNIMO", w: "CASA", opt: ["Hogar", "Calle", "Techo"], ans: 0 }
                 ];
                 this.next();
             }
             next() {
                 this.clear();
                 if(this.qIdx >= this.data.length) return this.end();
-                
+
                 let q = this.data[this.qIdx];
                 this.message(`Busca el ${q.type} de:`);
                 this.container.className = "flex flex-col items-center w-full";
 
                 let main = document.createElement('div');
                 main.innerText = q.w;
-                main.className = "text-4xl font-black text-neuro-primary mb-6";
+                main.className = "text-5xl md:text-6xl font-black text-neuro-primary mb-8";
                 this.container.appendChild(main);
 
                 let grid = document.createElement('div');
-                grid.className = "grid grid-cols-1 gap-3 w-full max-w-xs";
-                
+                grid.className = "grid grid-cols-1 gap-4 w-full max-w-sm";
+
                 q.opt.forEach((opt, i) => {
                     let b = document.createElement('button');
                     b.innerText = opt;
-                    b.className = "bg-white border-2 border-gray-100 p-4 rounded-xl text-xl shadow-sm hover:border-blue-300 active:bg-blue-50 transition-colors";
+                    b.className = "bg-white border-2 border-gray-200 p-5 rounded-xl text-2xl font-bold shadow-sm hover:border-blue-400 active:bg-blue-50 transition-colors text-gray-800";
                     b.onclick = () => {
                         if(i === q.ans) {
                             this.score += 15;
                             this.onScore(this.score);
-                            this.message("Correcto", "text-green-500");
+                            this.message("Correcto", "text-green-600");
                         } else {
-                            this.message("Incorrecto", "text-red-500");
+                            this.message("Incorrecto", "text-red-600");
                         }
                         this.qIdx++;
-                        setTimeout(() => this.next(), 800);
+                        setTimeout(() => this.next(), 1200);
                     };
                     grid.appendChild(b);
                 });
@@ -652,12 +718,12 @@
 
         class SymbolSearchGame extends GameEngine {
             start() {
-                this.score = 0; this.timeLeft = 30; 
+                this.score = 0; this.timeLeft = 45; // More time (45s)
                 this.active = true;
-                
+
                 this.timerInt = setInterval(() => {
                     this.timeLeft--;
-                    this.message(`Tiempo: ${this.timeLeft}s`, "text-purple-600");
+                    this.message(`Tiempo: ${this.timeLeft}s`, "text-purple-700");
                     if(this.timeLeft <= 0) {
                         clearInterval(this.timerInt);
                         this.end();
@@ -668,22 +734,22 @@
             renderGrid() {
                 this.clear();
                 if(!this.active) return;
-                
-                const symbols = ['★', '●', '■', '▲', '♦', '♥'];
+
+                const symbols = ['★', '●', '■', '▲', '♦', '♥', '♣', '♠'];
                 const target = symbols[Math.floor(Math.random()*symbols.length)];
-                
+
                 this.container.className = "flex flex-col items-center w-full max-w-sm mx-auto";
 
                 let info = document.createElement('div');
-                info.innerHTML = `Busca: <span class="text-5xl font-bold text-neuro-primary align-middle ml-2">${target}</span>`;
-                info.className = "mb-6 text-xl flex items-center";
+                info.innerHTML = `Busca: <span class="text-6xl font-bold text-neuro-primary align-middle ml-4 bg-blue-50 px-4 rounded-lg border border-blue-100">${target}</span>`;
+                info.className = "mb-8 text-2xl flex items-center";
                 this.container.appendChild(info);
 
                 let grid = document.createElement('div');
-                grid.className = "grid grid-cols-4 gap-3 w-full";
-                
+                grid.className = "grid grid-cols-4 gap-4 w-full";
+
                 let items = [];
-                for(let i=0; i<15; i++) {
+                for(let i=0; i<11; i++) {
                     let s = symbols[Math.floor(Math.random()*symbols.length)];
                     if(s === target) s = symbols[(symbols.indexOf(s)+1)%symbols.length];
                     items.push({s: s, isT: false});
@@ -694,7 +760,7 @@
                 items.forEach(item => {
                     let b = document.createElement('button');
                     b.innerText = item.s;
-                    b.className = "w-full aspect-square bg-gray-50 border border-gray-200 rounded-xl text-3xl flex items-center justify-center shadow-sm active:bg-gray-200 transition-colors";
+                    b.className = "w-full aspect-square bg-gray-50 border-2 border-gray-200 rounded-xl text-4xl flex items-center justify-center shadow-sm active:bg-gray-200 transition-colors";
                     b.onclick = () => {
                         if(item.isT) {
                             this.score += 5;
@@ -702,7 +768,7 @@
                             this.renderGrid();
                         } else {
                             b.classList.add('bg-red-100', 'border-red-300');
-                            setTimeout(()=>b.classList.remove('bg-red-100', 'border-red-300'), 200);
+                            setTimeout(()=>b.classList.remove('bg-red-100', 'border-red-300'), 300);
                         }
                     };
                     grid.appendChild(b);
@@ -722,18 +788,33 @@
                 this.charts = {};
             }
             async init() {
-                await this.db.init();
+                const statusEl = document.getElementById('db-status');
+                const result = await this.db.init();
+
+                if (result.success) {
+                    if(result.mode === 'sql') statusEl.innerText = "Sistema listo.";
+                    else statusEl.innerText = "Modo desconectado activo.";
+                } else {
+                    statusEl.innerText = "Error de carga.";
+                }
+
                 const uid = localStorage.getItem('na_uid');
                 const uname = localStorage.getItem('na_uname');
                 if(uid && uname) this.setUser({id:uid, name:uname});
-                
+
                 document.getElementById('btn-login').onclick = () => {
                     const name = document.getElementById('input-username').value.trim();
                     if(name) {
-                        const u = this.db.loginUser(name);
-                        localStorage.setItem('na_uid', u.id);
-                        localStorage.setItem('na_uname', u.name);
-                        this.setUser(u);
+                        try {
+                            const u = this.db.loginUser(name);
+                            localStorage.setItem('na_uid', u.id);
+                            localStorage.setItem('na_uname', u.name);
+                            this.setUser(u);
+                        } catch(e) {
+                            alert("Error al iniciar sesión: " + e.message);
+                        }
+                    } else {
+                        alert("Por favor, escriba su nombre");
                     }
                 };
             }
@@ -752,18 +833,18 @@
             }
             switchTab(tab) {
                 ['home', 'stats', 'game'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
-                
+
                 // Reset tab styles
-                document.getElementById('tab-home').className = "flex flex-col items-center p-2 w-full text-gray-400 transition duration-200 rounded-lg active:bg-gray-50";
-                document.getElementById('tab-stats').className = "flex flex-col items-center p-2 w-full text-gray-400 transition duration-200 rounded-lg active:bg-gray-50";
+                document.getElementById('tab-home').className = "flex flex-col items-center p-2 w-full text-gray-400 transition duration-200 rounded-xl active:bg-blue-50";
+                document.getElementById('tab-stats').className = "flex flex-col items-center p-2 w-full text-gray-400 transition duration-200 rounded-xl active:bg-blue-50";
 
                 if(tab === 'home') {
                     document.getElementById('view-home').classList.remove('hidden');
-                    document.getElementById('tab-home').className = "flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-lg active:bg-gray-50";
+                    document.getElementById('tab-home').className = "flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50";
                 }
                 if(tab === 'stats') {
                     document.getElementById('view-stats').classList.remove('hidden');
-                    document.getElementById('tab-stats').className = "flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-lg active:bg-gray-50";
+                    document.getElementById('tab-stats').className = "flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50";
                     this.loadStats();
                 }
             }
@@ -771,7 +852,7 @@
                 document.getElementById('view-home').classList.add('hidden');
                 document.getElementById('view-game').classList.remove('hidden');
                 document.getElementById('game-score').innerText = '0';
-                
+
                 const area = document.getElementById('game-area');
                 const msg = document.getElementById('game-message');
                 area.innerHTML = ''; // Limpiar previo
@@ -780,7 +861,9 @@
                 const onScore = (s) => document.getElementById('game-score').innerText = s;
                 const onEnd = (s) => {
                     this.db.saveResult(this.user.id, type, s);
-                    alert(`¡Fin del juego!\nPuntos: ${s}`);
+                    // Use standard alert or custom modal? Alert is simpler for seniors sometimes, but less pretty.
+                    // We'll stick to alert but maybe we could do a nice overlay later.
+                    alert(`¡Muy bien!\nPuntuación final: ${s}`);
                     this.switchTab('home');
                 };
 
@@ -812,10 +895,24 @@
                         datasets: [{
                             label: 'Nivel',
                             data: [data.categoryScores['Memoria'], data.categoryScores['Atención'], data.categoryScores['Lenguaje'], data.categoryScores['Velocidad']],
-                            backgroundColor: 'rgba(37, 99, 235, 0.2)', borderColor: '#2563EB', pointBackgroundColor: '#2563EB'
+                            backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                            borderColor: '#2563EB',
+                            pointBackgroundColor: '#2563EB',
+                            pointRadius: 6 // Larger points
                         }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { r: { beginAtZero: true, suggestedMax: 100 } } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                suggestedMax: 100,
+                                pointLabels: { font: { size: 16 } }, // Larger labels
+                                ticks: { font: { size: 12 } }
+                            }
+                        }
+                    }
                 });
 
                 const ctxLine = document.getElementById('lineChart');
@@ -824,9 +921,24 @@
                     type: 'line',
                     data: {
                         labels: Object.keys(data.dailyScores),
-                        datasets: [{ label: 'Puntos', data: Object.values(data.dailyScores), borderColor: '#10B981', tension: 0.4 }]
+                        datasets: [{
+                            label: 'Puntos',
+                            data: Object.values(data.dailyScores),
+                            borderColor: '#10B981',
+                            backgroundColor: '#10B981',
+                            tension: 0.3,
+                            borderWidth: 3,
+                            pointRadius: 6
+                        }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { ticks: { font: { size: 14 } } },
+                            y: { ticks: { font: { size: 14 } } }
+                        }
+                    }
                 });
             }
         }
