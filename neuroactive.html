@@ -266,156 +266,6 @@
             symbolSearch: { category: 'Velocidad', label: 'Símbolos' }
         };
 
-        const GAME_CONTENT = {
-            languageOrder: [
-                // Nivel Fácil (3-4 palabras)
-                "El sol brilla", "La luna es blanca", "Me gusta el pan", "El gato duerme", "Tomo agua fresca",
-                "Hoy es lunes", "Hace mucho calor", "El cielo es azul", "La flor es roja", "El perro ladra",
-                "Como una manzana", "Leo un libro", "Camino por el parque", "La sopa está rica", "Tengo dos manos",
-                "Miro la televisión", "Uso zapatos negros", "El árbol es verde", "Bebo leche caliente", "La silla es cómoda",
-                "Escribo una carta", "Canto una canción", "El coche es rápido", "La casa es grande", "Abro la ventana",
-                "Cierro la puerta", "Lavo los platos", "Limpio la mesa", "Subo la escalera", "Bajo al jardín",
-                // Nivel Medio (5-6 palabras)
-                "Me gusta caminar por la playa", "El café de la mañana huele bien", "Los niños juegan en el parque",
-                "La comida está sobre la mesa", "Mañana iré al médico temprano", "El autobús llegó tarde hoy",
-                "Compré frutas en el mercado", "Me puse el abrigo rojo", "La lluvia moja las calles",
-                "El reloj marca las doce", "Mi nieta se llama Sofía", "El gato saltó por la ventana",
-                "Me gusta leer antes de dormir", "El panadero hace pan rico", "Las flores huelen muy bien",
-                "El agua del río es fría", "Me gusta escuchar música suave", "El perro persigue la pelota",
-                "La lámpara ilumina la sala", "Escribí una nota para ti", "El teléfono está sonando fuerte",
-                "La puerta de entrada es azul", "Cociné pollo con papas", "El sol sale por el este",
-                "Las estrellas brillan en la noche", "El viento mueve las hojas", "Me gusta el helado de fresa",
-                "El tren sale a las cinco", "La cama tiene sábanas blancas", "El cuadro está en la pared",
-                // Nivel Difícil (7+ palabras)
-                "Ayer fui al mercado y compré manzanas rojas", "El domingo pasado visité a mis abuelos en el campo",
-                "Me gusta sentarme en el banco del parque a leer", "El perro de mi vecino ladra toda la noche sin parar",
-                "Para hacer una torta necesito harina huevos y azúcar", "Cuando era joven vivía en una casa cerca del mar",
-                "El médico me dijo que debo caminar todos los días", "La próxima semana tengo una cita con el dentista",
-                "Me gusta ver las noticias en la televisión por la noche", "El jardín de mi casa está lleno de rosas hermosas",
-                "Tengo que ir al supermercado a comprar leche y pan", "Mi hijo me regaló un libro muy interesante ayer",
-                "El cielo estaba nublado y empezó a llover muy fuerte", "Me levanté temprano para ver el amanecer desde la ventana",
-                "El gato se escondió debajo de la cama porque tenía miedo", "La sopa de verduras es muy buena para la salud",
-                "Me gusta tomar una taza de té caliente por la tarde", "El autobús estaba lleno y tuve que ir de pie",
-                "Escribí una carta larga a mi amiga que vive lejos", "El reloj de la cocina se quedó sin pilas ayer",
-                "Tengo que llamar a mi hermana para felicitarla por su cumpleaños", "El parque estaba lleno de gente disfrutando del sol",
-                "La película que vimos anoche fue muy divertida y emocionante", "Me gusta pasear por la orilla del mar cuando hace buen tiempo",
-                "El pan que compré en la panadería estaba recién hecho", "Tengo que regar las plantas del balcón porque están secas",
-                "El cartero trajo un paquete grande para mi vecino hoy", "La música clásica me ayuda a relajarme cuando estoy cansado",
-                "El restaurante donde cenamos tenía una comida deliciosa y barata", "Me gusta recordar los viejos tiempos cuando miro fotos antiguas",
-                "El perro corrió detrás de la pelota y la trajo de vuelta", "La profesora explicó la lección de historia con mucha claridad",
-                "Tengo que buscar mis gafas porque no sé dónde las dejé", "El invierno pasado hizo mucho frío y nevó varios días",
-                "Me gusta cocinar para mi familia los fines de semana", "El coche no arrancó esta mañana porque la batería estaba vieja",
-                "La biblioteca es un lugar tranquilo para leer y estudiar", "El niño dibujó una casa con un árbol y un sol",
-                "Tengo que coser el botón de mi camisa porque se cayó", "El viaje en tren fue largo pero muy cómodo y bonito",
-                "Me gusta escuchar el canto de los pájaros por la mañana", "El médico me recetó unas pastillas para el dolor de espalda"
-            ],
-            wordAssoc: [
-                // Fácil (Sinónimos/Antónimos comunes)
-                { type: "SINÓNIMO", w: "FELIZ", opt: ["Triste", "Alegre", "Lento"], ans: 1 },
-                { type: "ANTÓNIMO", w: "GRANDE", opt: ["Pequeño", "Alto", "Fuerte"], ans: 0 },
-                { type: "SINÓNIMO", w: "RÁPIDO", opt: ["Lento", "Veloz", "Duro"], ans: 1 },
-                { type: "ANTÓNIMO", w: "DÍA", opt: ["Sol", "Noche", "Tarde"], ans: 1 },
-                { type: "SINÓNIMO", w: "CASA", opt: ["Hogar", "Calle", "Coche"], ans: 0 },
-                { type: "ANTÓNIMO", w: "FRÍO", opt: ["Hielo", "Caliente", "Fresco"], ans: 1 },
-                { type: "SINÓNIMO", w: "BONITO", opt: ["Feo", "Hermoso", "Malo"], ans: 1 },
-                { type: "ANTÓNIMO", w: "SUBIR", opt: ["Bajar", "Saltar", "Correr"], ans: 0 },
-                { type: "SINÓNIMO", w: "AUTO", opt: ["Barco", "Coche", "Avión"], ans: 1 },
-                { type: "ANTÓNIMO", w: "LLENO", opt: ["Vacío", "Medio", "Todo"], ans: 0 },
-                { type: "SINÓNIMO", w: "ESCUCHAR", opt: ["Ver", "Oír", "Hablar"], ans: 1 },
-                { type: "ANTÓNIMO", w: "BLANCO", opt: ["Rojo", "Negro", "Azul"], ans: 1 },
-                { type: "SINÓNIMO", w: "ANDAR", opt: ["Caminar", "Dormir", "Comer"], ans: 0 },
-                { type: "ANTÓNIMO", w: "ALTO", opt: ["Bajo", "Gordo", "Flaco"], ans: 0 },
-                { type: "SINÓNIMO", w: "REGALO", opt: ["Obsequio", "Compra", "Venta"], ans: 0 },
-                { type: "ANTÓNIMO", w: "MOJADO", opt: ["Limpio", "Seco", "Sucio"], ans: 1 },
-                { type: "SINÓNIMO", w: "ROSTRO", opt: ["Mano", "Cara", "Pie"], ans: 1 },
-                { type: "ANTÓNIMO", w: "VERDAD", opt: ["Mentira", "Duda", "Cierto"], ans: 0 },
-                { type: "SINÓNIMO", w: "DANZA", opt: ["Baile", "Canto", "Juego"], ans: 0 },
-                { type: "ANTÓNIMO", w: "ENTRAR", opt: ["Salir", "Venir", "Llegar"], ans: 0 },
-                { type: "SINÓNIMO", w: "PELO", opt: ["Cabello", "Ojo", "Boca"], ans: 0 },
-                { type: "ANTÓNIMO", w: "JOVEN", opt: ["Viejo", "Nuevo", "Niño"], ans: 0 },
-                { type: "SINÓNIMO", w: "GOLPE", opt: ["Caricia", "Impacto", "Grito"], ans: 1 },
-                { type: "ANTÓNIMO", w: "ABRIR", opt: ["Cerrar", "Romper", "Unir"], ans: 0 },
-                { type: "SINÓNIMO", w: "CALZADO", opt: ["Sombrero", "Zapato", "Guante"], ans: 1 },
-                { type: "ANTÓNIMO", w: "ANCHO", opt: ["Estrecho", "Largo", "Grande"], ans: 0 },
-                { type: "SINÓNIMO", w: "CHARLAR", opt: ["Callar", "Conversar", "Gritar"], ans: 1 },
-                { type: "ANTÓNIMO", w: "REÍR", opt: ["Llorar", "Sonreír", "Gozar"], ans: 0 },
-                { type: "SINÓNIMO", w: "FUEGO", opt: ["Agua", "Llama", "Aire"], ans: 1 },
-                { type: "ANTÓNIMO", w: "DAR", opt: ["Recibir", "Soltar", "Perder"], ans: 0 },
-                // Medio (Conceptos y vocabulario)
-                { type: "SINÓNIMO", w: "EDIFICIO", opt: ["Construcción", "Jardín", "Plaza"], ans: 0 },
-                { type: "ANTÓNIMO", w: "SILENCIO", opt: ["Paz", "Ruido", "Calma"], ans: 1 },
-                { type: "SINÓNIMO", w: "OCULTO", opt: ["Visto", "Escondido", "Claro"], ans: 1 },
-                { type: "ANTÓNIMO", w: "VALIENTE", opt: ["Fuerte", "Cobarde", "Héroe"], ans: 1 },
-                { type: "SINÓNIMO", w: "SENCILLO", opt: ["Fácil", "Difícil", "Raro"], ans: 0 },
-                { type: "ANTÓNIMO", w: "AMANECER", opt: ["Atardecer", "Mañana", "Día"], ans: 0 },
-                { type: "SINÓNIMO", w: "VELOZ", opt: ["Lento", "Rápido", "Tardo"], ans: 1 },
-                { type: "ANTÓNIMO", w: "ÉXITO", opt: ["Logro", "Fracaso", "Triunfo"], ans: 1 },
-                { type: "SINÓNIMO", w: "ALIMENTO", opt: ["Comida", "Bebida", "Plato"], ans: 0 },
-                { type: "ANTÓNIMO", w: "LIBERTAD", opt: ["Esclavitud", "Paz", "Vida"], ans: 0 },
-                { type: "SINÓNIMO", w: "EXTRAÑO", opt: ["Común", "Raro", "Conocido"], ans: 1 },
-                { type: "ANTÓNIMO", w: "UNIR", opt: ["Juntar", "Separar", "Pegar"], ans: 1 },
-                { type: "SINÓNIMO", w: "ENOJADO", opt: ["Feliz", "Furioso", "Tranquilo"], ans: 1 },
-                { type: "ANTÓNIMO", w: "PERMITIR", opt: ["Dejar", "Prohibir", "Aceptar"], ans: 1 },
-                { type: "SINÓNIMO", w: "ANTIGUO", opt: ["Viejo", "Nuevo", "Moderno"], ans: 0 },
-                { type: "ANTÓNIMO", w: "OSCURO", opt: ["Negro", "Claro", "Noche"], ans: 1 },
-                { type: "SINÓNIMO", w: "COMBATE", opt: ["Paz", "Lucha", "Amor"], ans: 1 },
-                { type: "ANTÓNIMO", w: "GANAR", opt: ["Vencer", "Perder", "Jugar"], ans: 1 },
-                { type: "SINÓNIMO", w: "ERROR", opt: ["Acierto", "Fallo", "Verdad"], ans: 1 },
-                { type: "ANTÓNIMO", w: "AMIGO", opt: ["Compañero", "Enemigo", "Vecino"], ans: 1 },
-                { type: "SINÓNIMO", w: "LUGAR", opt: ["Sitio", "Tiempo", "Modo"], ans: 0 },
-                { type: "ANTÓNIMO", w: "RECORDAR", opt: ["Olvidar", "Pensar", "Saber"], ans: 0 },
-                { type: "SINÓNIMO", w: "MAESTRO", opt: ["Alumno", "Profesor", "Escuela"], ans: 1 },
-                { type: "ANTÓNIMO", w: "AMOR", opt: ["Cariño", "Odio", "Besos"], ans: 1 },
-                { type: "SINÓNIMO", w: "MEDICINA", opt: ["Enfermedad", "Remedio", "Dolor"], ans: 1 },
-                { type: "ANTÓNIMO", w: "COMIENZO", opt: ["Inicio", "Final", "Centro"], ans: 1 },
-                { type: "SINÓNIMO", w: "AGUJEROS", opt: ["Huecos", "Montañas", "Piedras"], ans: 0 },
-                { type: "ANTÓNIMO", w: "COMPRAR", opt: ["Vender", "Adquirir", "Tener"], ans: 0 },
-                { type: "SINÓNIMO", w: "CAMINO", opt: ["Cielo", "Sendero", "Mar"], ans: 1 },
-                { type: "ANTÓNIMO", w: "SIMPLE", opt: ["Sencillo", "Complejo", "Puro"], ans: 1 },
-                // Difícil (Abstractos y matices)
-                { type: "SINÓNIMO", w: "GENEROSO", opt: ["Tacaño", "Dadivoso", "Egoísta"], ans: 1 },
-                { type: "ANTÓNIMO", w: "OPTIMISTA", opt: ["Pesimista", "Alegre", "Positivo"], ans: 0 },
-                { type: "SINÓNIMO", w: "FRÁGIL", opt: ["Fuerte", "Débil", "Duro"], ans: 1 },
-                { type: "ANTÓNIMO", w: "ABUNDANCIA", opt: ["Riqueza", "Escasez", "Mucho"], ans: 1 },
-                { type: "SINÓNIMO", w: "EFÍMERO", opt: ["Eterno", "Pasajero", "Largo"], ans: 1 },
-                { type: "ANTÓNIMO", w: "ADMITIR", opt: ["Aceptar", "Rechazar", "Confesar"], ans: 1 },
-                { type: "SINÓNIMO", w: "VIGOR", opt: ["Fuerza", "Sueño", "Debilidad"], ans: 0 },
-                { type: "ANTÓNIMO", w: "ELOGIO", opt: ["Alabanza", "Crítica", "Aplauso"], ans: 1 },
-                { type: "SINÓNIMO", w: "ASTUTO", opt: ["Ingenuo", "Listo", "Torpe"], ans: 1 },
-                { type: "ANTÓNIMO", w: "FICTICIO", opt: ["Falso", "Real", "Cuento"], ans: 1 },
-                { type: "SINÓNIMO", w: "HÁBITO", opt: ["Costumbre", "Ropa", "Casa"], ans: 0 },
-                { type: "ANTÓNIMO", w: "PACIENTE", opt: ["Calmado", "Impaciente", "Enfermo"], ans: 1 },
-                { type: "SINÓNIMO", w: "LEAL", opt: ["Traidor", "Fiel", "Falso"], ans: 1 },
-                { type: "ANTÓNIMO", w: "PERMANENTE", opt: ["Duradero", "Temporal", "Fijo"], ans: 1 },
-                { type: "SINÓNIMO", w: "NATIVO", opt: ["Extranjero", "Oriundo", "Viajero"], ans: 1 },
-                { type: "ANTÓNIMO", w: "PRIVADO", opt: ["Público", "Íntimo", "Secreto"], ans: 0 },
-                { type: "SINÓNIMO", w: "QUIMERA", opt: ["Verdad", "Ilusión", "Piedra"], ans: 1 },
-                { type: "ANTÓNIMO", w: "RUDO", opt: ["Tosco", "Amable", "Fuerte"], ans: 1 },
-                { type: "SINÓNIMO", w: "SINCERO", opt: ["Franco", "Falso", "Mentiroso"], ans: 0 },
-                { type: "ANTÓNIMO", w: "URBANO", opt: ["Ciudad", "Rural", "Calle"], ans: 1 },
-                { type: "SINÓNIMO", w: "VASTO", opt: ["Pequeño", "Amplio", "Corto"], ans: 1 },
-                { type: "ANTÓNIMO", w: "BELICOSO", opt: ["Guerrero", "Pacífico", "Violento"], ans: 1 },
-                { type: "SINÓNIMO", w: "CANDOR", opt: ["Malicia", "Ingenuidad", "Dolor"], ans: 1 },
-                { type: "ANTÓNIMO", w: "DILIGENTE", opt: ["Rápido", "Negligente", "Activo"], ans: 1 },
-                { type: "SINÓNIMO", w: "ENIGMA", opt: ["Misterio", "Claridad", "Luz"], ans: 0 },
-                { type: "ANTÓNIMO", w: "FLEXIBLE", opt: ["Rígido", "Blando", "Elástico"], ans: 0 },
-                { type: "SINÓNIMO", w: "GRATITUD", opt: ["Olvido", "Agradecimiento", "Rencor"], ans: 1 },
-                { type: "ANTÓNIMO", w: "HÚMEDO", opt: ["Mojado", "Árido", "Agua"], ans: 1 },
-                { type: "SINÓNIMO", w: "INSÓLITO", opt: ["Normal", "Inusual", "Común"], ans: 1 },
-                { type: "ANTÓNIMO", w: "LUCRO", opt: ["Ganancia", "Pérdida", "Dinero"], ans: 1 },
-                { type: "SINÓNIMO", w: "MODESTO", opt: ["Humilde", "Soberbio", "Rico"], ans: 0 },
-                { type: "ANTÓNIMO", w: "NÍTIDO", opt: ["Claro", "Borrubo", "Limpio"], ans: 1 },
-                { type: "SINÓNIMO", w: "ÓPTIMO", opt: ["Pésimo", "Mejor", "Malo"], ans: 1 },
-                { type: "ANTÓNIMO", w: "PREVIO", opt: ["Anterior", "Posterior", "Antes"], ans: 1 },
-                { type: "SINÓNIMO", w: "QUIETO", opt: ["Móvil", "Inmóvil", "Rápido"], ans: 1 },
-                { type: "ANTÓNIMO", w: "ROBUSTO", opt: ["Fuerte", "Enclenque", "Sano"], ans: 1 },
-                { type: "SINÓNIMO", w: "SUBLIME", opt: ["Excelso", "Bajo", "Feo"], ans: 0 },
-                { type: "ANTÓNIMO", w: "TENAZ", opt: ["Perseverante", "Inconstante", "Firme"], ans: 1 },
-                { type: "SINÓNIMO", w: "UFANO", opt: ["Triste", "Orgulloso", "Humilde"], ans: 1 },
-                { type: "ANTÓNIMO", w: "VIGENTE", opt: ["Actual", "Caducho", "Presente"], ans: 1 }
-            ]
-        };
-
         class DatabaseManager {
             constructor() {
                 this.db = null;
@@ -537,14 +387,6 @@
                     return { totalScore, categoryScores, dailyScores };
                 }
             }
-            getCompletedCount(userId, gameType) {
-                if (this.mode === 'sql') {
-                    const res = this.db.exec(`SELECT COUNT(*) FROM results WHERE user_id = ${userId} AND game_type = '${gameType}'`);
-                    return res[0]?.values[0][0] || 0;
-                } else {
-                    return this.localData.results.filter(r => r.user_id == userId && r.game_type === gameType).length;
-                }
-            }
         }
 
         class GameEngine {
@@ -612,6 +454,8 @@
             }
             click(i, el) {
                 if(!this.active || this.userPattern.includes(i)) return;
+
+                el.classList.remove('hover:bg-gray-300'); // Remove hover effect to show true color
 
                 if(this.pattern.includes(i)) {
                     el.classList.replace('bg-gray-200', 'bg-neuro-secondary');
@@ -798,18 +642,15 @@
 
         class LanguageOrderGame extends GameEngine {
             start() {
-                this.score = 0; // Score for display only
-                this.qIdx = app.db.getCompletedCount(app.user.id, 'languageOrder');
+                this.score = 0; this.qIdx = 0;
+                this.phrases = ["El cielo es azul", "Me gusta el pan", "Hoy hace sol", "El perro corre", "La flor es roja", "La luna brilla", "El agua moja", "Como frutas dulces"];
                 this.next();
             }
             next() {
                 this.clear();
-                if(this.qIdx >= GAME_CONTENT.languageOrder.length) {
-                    alert("¡Felicidades! Ha completado todos los ejercicios de este juego.");
-                    return this.onEnd(null);
-                }
+                if(this.qIdx >= this.phrases.length) return this.end();
 
-                let target = GAME_CONTENT.languageOrder[this.qIdx];
+                let target = this.phrases[this.qIdx];
                 let words = target.split(' ').sort(() => Math.random()-0.5);
                 let current = [];
 
@@ -836,43 +677,36 @@
                             current.splice(current.indexOf(w), 1);
                         }
                         if(current.join(' ') === target) {
-                            this.completeRound(20, "¡Perfecto!");
+                            this.score += 20;
+                            this.onScore(this.score);
+                            this.message("¡Perfecto!", "text-green-600");
+                            this.qIdx++;
+                            this.tmOut = setTimeout(() => this.next(), 1200);
                         }
                     };
                     bank.appendChild(b);
                 });
                 this.container.appendChild(bank);
             }
-            completeRound(pts, msg) {
-                // Save result immediately
-                app.db.saveResult(app.user.id, 'languageOrder', pts);
-
-                this.score += pts;
-                this.onScore(this.score);
-                this.message(msg, "text-green-600");
-                this.qIdx++;
-                this.tmOut = setTimeout(() => this.next(), 1200);
-            }
-            end() {
-                this.stop();
-                this.onEnd(null); // Don't save session score again
-            }
         }
 
         class WordAssocGame extends GameEngine {
             start() {
-                this.score = 0;
-                this.qIdx = app.db.getCompletedCount(app.user.id, 'wordAssoc');
+                this.score = 0; this.qIdx = 0;
+                this.data = [
+                    { type: "SINÓNIMO", w: "ALEGRE", opt: ["Triste", "Feliz", "Rápido"], ans: 1 },
+                    { type: "ANTÓNIMO", w: "CALIENTE", opt: ["Frío", "Fuego", "Tibio"], ans: 0 },
+                    { type: "SINÓNIMO", w: "AUTO", opt: ["Rueda", "Coche", "Camino"], ans: 1 },
+                    { type: "ANTÓNIMO", w: "LLENO", opt: ["Vacío", "Todo", "Alto"], ans: 0 },
+                    { type: "SINÓNIMO", w: "CASA", opt: ["Hogar", "Calle", "Techo"], ans: 0 }
+                ];
                 this.next();
             }
             next() {
                 this.clear();
-                if(this.qIdx >= GAME_CONTENT.wordAssoc.length) {
-                    alert("¡Felicidades! Ha completado todos los ejercicios de este juego.");
-                    return this.onEnd(null);
-                }
+                if(this.qIdx >= this.data.length) return this.end();
 
-                let q = GAME_CONTENT.wordAssoc[this.qIdx];
+                let q = this.data[this.qIdx];
                 this.message(`Busca el ${q.type} de:`);
                 this.container.className = "flex flex-col items-center w-full";
 
@@ -889,29 +723,19 @@
                     b.innerText = opt;
                     b.className = "bg-white border-2 border-gray-200 p-5 rounded-xl text-2xl font-bold shadow-sm hover:border-blue-400 active:bg-blue-50 transition-colors text-gray-800";
                     b.onclick = () => {
-                        let pts = 0;
                         if(i === q.ans) {
-                            pts = 15;
-                            this.score += pts;
+                            this.score += 15;
                             this.onScore(this.score);
                             this.message("Correcto", "text-green-600");
                         } else {
                             this.message("Incorrecto", "text-red-600");
                         }
-
-                        // Save result immediately (even if 0 points)
-                        app.db.saveResult(app.user.id, 'wordAssoc', pts);
-
                         this.qIdx++;
                         this.tmOut = setTimeout(() => this.next(), 1200);
                     };
                     grid.appendChild(b);
                 });
                 this.container.appendChild(grid);
-            }
-            end() {
-                this.stop();
-                this.onEnd(null);
             }
         }
 
