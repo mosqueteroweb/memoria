@@ -231,6 +231,17 @@
 
     </main>
 
+    <!-- MODAL COMPONENT -->
+    <div id="neuro-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center border-t-8 border-neuro-primary transform transition-all scale-100">
+            <h3 id="modal-title" class="text-3xl font-bold text-neuro-primary mb-4">Título</h3>
+            <p id="modal-message" class="text-xl text-gray-700 mb-8 leading-relaxed">Mensaje</p>
+            <button id="modal-action" class="w-full bg-neuro-primary text-white text-xl font-bold py-4 rounded-xl shadow-lg hover:bg-blue-700 btn-neuro">
+                CONTINUAR
+            </button>
+        </div>
+    </div>
+
     <!-- NAVIGATION TABS -->
     <nav id="nav-tabs" class="hidden fixed bottom-0 w-full bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.15)] border-t border-gray-200 flex justify-around p-3 z-50 pb-safe safe-area-bottom h-24 items-start pt-4">
         <button onclick="app.switchTab('home')" class="flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50" id="tab-home">
@@ -822,10 +833,10 @@
                             localStorage.setItem('na_uname', u.name);
                             this.setUser(u);
                         } catch(e) {
-                            alert("Error al iniciar sesión: " + e.message);
+                            this.showModal("Error", "Error al iniciar sesión: " + e.message);
                         }
                     } else {
-                        alert("Por favor, escriba su nombre");
+                        this.showModal("Atención", "Por favor, escriba su nombre");
                     }
                 };
             }
@@ -882,10 +893,9 @@
                 const onScore = (s) => document.getElementById('game-score').innerText = s;
                 const onEnd = (s) => {
                     this.db.saveResult(this.user.id, type, s);
-                    // Use standard alert or custom modal? Alert is simpler for seniors sometimes, but less pretty.
-                    // We'll stick to alert but maybe we could do a nice overlay later.
-                    alert(`¡Muy bien!\nPuntuación final: ${s}`);
-                    this.switchTab('home');
+                    this.showModal("¡Muy bien!", `Puntuación final: ${s}`, () => {
+                        this.switchTab('home');
+                    });
                 };
 
                 const games = {
@@ -903,6 +913,24 @@
                     this.game.start();
                 }
             }
+            showModal(title, msg, onConfirm) {
+                const m = document.getElementById('neuro-modal');
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-message').innerText = msg;
+                const btn = document.getElementById('modal-action');
+
+                // Reset button clone to clear listeners
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+
+                newBtn.onclick = () => {
+                    m.classList.add('hidden');
+                    if (onConfirm) onConfirm();
+                };
+
+                m.classList.remove('hidden');
+            }
+
             loadStats() {
                 const data = this.db.getStats(this.user.id);
                 document.getElementById('global-score').innerText = data.totalScore;
