@@ -387,13 +387,18 @@
                 this.score = 0;
                 this.level = 1;
                 this.active = false;
+                this.tmOut = null;
             }
             clear() { this.container.innerHTML = ''; }
             message(text, color='text-gray-800') {
                 this.msgEl.className = `mt-6 text-2xl text-center font-bold ${color} px-4 transition-all duration-300 flex items-center justify-center min-h-[4rem]`;
                 this.msgEl.innerText = text;
             }
-            end() { this.active = false; this.onEnd(this.score); }
+            end() { this.stop(); this.onEnd(this.score); }
+            stop() {
+                this.active = false;
+                if(this.tmOut) clearTimeout(this.tmOut);
+            }
         }
 
         class MemoryMatrixGame extends GameEngine {
@@ -427,9 +432,9 @@
                 this.userPattern = [];
 
                 // Timings adjusted for seniors
-                setTimeout(() => {
+                this.tmOut = setTimeout(() => {
                     pattern.forEach(i => cells[i].classList.replace('bg-gray-200', 'bg-neuro-primary'));
-                    setTimeout(() => {
+                    this.tmOut = setTimeout(() => {
                         pattern.forEach(i => cells[i].classList.replace('bg-neuro-primary', 'bg-gray-200'));
                         this.active = true;
                         this.message("¡Repite el patrón!");
@@ -447,12 +452,12 @@
                         this.onScore(this.score);
                         this.level++;
                         this.active = false;
-                        setTimeout(() => this.next(), 1000); // Slower transition
+                        this.tmOut = setTimeout(() => this.next(), 1000); // Slower transition
                     }
                 } else {
                     el.classList.replace('bg-gray-200', 'bg-neuro-danger');
                     this.message("¡Incorrecto!", 'text-red-600');
-                    setTimeout(() => this.end(), 1500);
+                    this.tmOut = setTimeout(() => this.end(), 1500);
                 }
             }
         }
@@ -480,13 +485,15 @@
                 for(let i=0; i<length; i++) this.sequence.push(Math.floor(Math.random()*9));
                 this.userStep = 0;
 
-                await new Promise(r => setTimeout(r, 800));
+                await new Promise(r => { this.tmOut = setTimeout(r, 800); });
+                if(!this.active && this.level > 1) return; // Check if stopped
 
                 for(let idx of this.sequence) {
+                    if(!this.container.isConnected) return; // Stop if removed
                     cells[idx].classList.add('bg-neuro-primary', 'scale-110', 'border-blue-700');
-                    await new Promise(r => setTimeout(r, 1000)); // Slower step (1s)
+                    await new Promise(r => { this.tmOut = setTimeout(r, 1000); });
                     cells[idx].classList.remove('bg-neuro-primary', 'scale-110', 'border-blue-700');
-                    await new Promise(r => setTimeout(r, 300));
+                    await new Promise(r => { this.tmOut = setTimeout(r, 300); });
                 }
                 this.active = true;
                 this.message("Tu turno");
@@ -503,11 +510,11 @@
                         this.onScore(this.score);
                         this.level++;
                         this.active = false;
-                        setTimeout(() => this.next(), 1000);
+                        this.tmOut = setTimeout(() => this.next(), 1000);
                     }
                 } else {
                     this.message("Error de secuencia", "text-red-600");
-                    setTimeout(() => this.end(), 1500);
+                    this.tmOut = setTimeout(() => this.end(), 1500);
                 }
             }
         }
@@ -547,7 +554,7 @@
                             this.message("Fallaste", "text-red-600");
                         }
                         this.rounds++;
-                        setTimeout(() => this.next(), 1000);
+                        this.tmOut = setTimeout(() => this.next(), 1000);
                     }
                     btnCont.appendChild(b);
                 });
@@ -573,27 +580,26 @@
                 this.stimulus.className = "w-40 h-40 md:w-52 md:h-52 rounded-3xl bg-gray-200 mb-10 border-4 border-gray-300";
                 this.message("Espera al VERDE...");
 
-                setTimeout(() => {
-                    if(!this.active && this.rounds < 15) {
-                        this.active = true;
-                        this.isTarget = Math.random() > 0.3;
-                        if(this.isTarget) {
-                            this.stimulus.className = "w-40 h-40 md:w-52 md:h-52 rounded-xl bg-green-500 mb-10 shadow-2xl scale-110 border-4 border-green-700";
-                        } else {
-                            this.stimulus.className = "w-40 h-40 md:w-52 md:h-52 rounded-full bg-red-500 mb-10 shadow-2xl border-4 border-red-700";
-                        }
-                        this.timeout = setTimeout(() => {
-                            if(this.active) {
-                                if(this.isTarget) this.message("¡Lento!", "text-orange-600");
-                                else {
-                                    this.score += 5;
-                                    this.onScore(this.score);
-                                    this.message("Bien (Inhibición)", "text-green-600");
-                                }
-                                this.finishRound();
-                            }
-                        }, 2000); // Increased window to 2s
+                this.tmOut = setTimeout(() => {
+                    if(!this.container.isConnected) return; // Check if unmounted
+                    this.active = true;
+                    this.isTarget = Math.random() > 0.3;
+                    if(this.isTarget) {
+                        this.stimulus.className = "w-40 h-40 md:w-52 md:h-52 rounded-xl bg-green-500 mb-10 shadow-2xl scale-110 border-4 border-green-700";
+                    } else {
+                        this.stimulus.className = "w-40 h-40 md:w-52 md:h-52 rounded-full bg-red-500 mb-10 shadow-2xl border-4 border-red-700";
                     }
+                    this.timeout = setTimeout(() => {
+                        if(this.active) {
+                            if(this.isTarget) this.message("¡Lento!", "text-orange-600");
+                            else {
+                                this.score += 5;
+                                this.onScore(this.score);
+                                this.message("Bien (Inhibición)", "text-green-600");
+                            }
+                            this.finishRound();
+                        }
+                    }, 2000); // Increased window to 2s
                 }, 1500 + Math.random()*2000); // Slower start
             }
             handleClick() {
@@ -613,7 +619,11 @@
             finishRound() {
                 this.active = false;
                 this.rounds++;
-                setTimeout(() => this.next(), 1200);
+                this.tmOut = setTimeout(() => this.next(), 1200);
+            }
+            stop() {
+                super.stop();
+                if(this.timeout) clearTimeout(this.timeout);
             }
         }
 
@@ -658,7 +668,7 @@
                             this.onScore(this.score);
                             this.message("¡Perfecto!", "text-green-600");
                             this.qIdx++;
-                            setTimeout(() => this.next(), 1200);
+                            this.tmOut = setTimeout(() => this.next(), 1200);
                         }
                     };
                     bank.appendChild(b);
@@ -708,7 +718,7 @@
                             this.message("Incorrecto", "text-red-600");
                         }
                         this.qIdx++;
-                        setTimeout(() => this.next(), 1200);
+                        this.tmOut = setTimeout(() => this.next(), 1200);
                     };
                     grid.appendChild(b);
                 });
@@ -720,13 +730,14 @@
             start() {
                 this.score = 0; this.timeLeft = 45; // More time (45s)
                 this.active = true;
+                this.timerInt = null;
 
                 this.timerInt = setInterval(() => {
                     this.timeLeft--;
                     this.message(`Tiempo: ${this.timeLeft}s`, "text-purple-700");
                     if(this.timeLeft <= 0) {
-                        clearInterval(this.timerInt);
-                        this.end();
+                        this.stop(); // Stop clears interval
+                        this.onEnd(this.score);
                     }
                 }, 1000);
                 this.renderGrid();
@@ -775,9 +786,9 @@
                 });
                 this.container.appendChild(grid);
             }
-            end() {
-                clearInterval(this.timerInt);
-                super.end();
+            stop() {
+                super.stop();
+                if(this.timerInt) clearInterval(this.timerInt);
             }
         }
 
@@ -832,6 +843,12 @@
                 location.reload();
             }
             switchTab(tab) {
+                // Stop active game if switching away from it
+                if(this.game && typeof this.game.stop === 'function') {
+                    this.game.stop();
+                    this.game = null;
+                }
+
                 ['home', 'stats', 'game'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
 
                 // Reset tab styles
@@ -849,6 +866,10 @@
                 }
             }
             startGame(type) {
+                if(this.game && typeof this.game.stop === 'function') {
+                    this.game.stop();
+                }
+
                 document.getElementById('view-home').classList.add('hidden');
                 document.getElementById('view-game').classList.remove('hidden');
                 document.getElementById('game-score').innerText = '0';
