@@ -911,12 +911,10 @@
                         if (b > a) { let t = a; a = b; b = t; } // Swap to avoid negative
                     } else if (op === '÷') {
                         // Ensure a is multiple of b AND a <= 99
-                        // b * result = a. result can be anything, but a <= 99.
-                        // So b * (a/b) <= 99.
-                        // We generate result first?
                         let q = getRandomInt(2, 12);
                         b = getRandomInt(2, 9);
-                        while (q * b > 99) { q--; } // Adjust
+                        // Calculate q directly to satisfy constraint instead of looping
+                        if (q * b > 99) q = Math.floor(99 / b);
                         a = q * b;
                     }
 
