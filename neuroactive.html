@@ -499,7 +499,6 @@
                 this.userStep = 0;
 
                 await new Promise(r => { this.tmOut = setTimeout(r, 800); });
-                if(!this.active && this.level > 1) return; // Check if stopped
 
                 for(let idx of this.sequence) {
                     if(!this.container.isConnected) return; // Stop if removed
@@ -521,6 +520,7 @@
                     if(this.userStep >= this.sequence.length) {
                         this.score += 20;
                         this.onScore(this.score);
+                        this.message("¡Bien!", "text-green-600");
                         this.level++;
                         this.active = false;
                         this.tmOut = setTimeout(() => this.next(), 1000);
