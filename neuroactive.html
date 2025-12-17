@@ -62,12 +62,16 @@
     <!-- HEADER -->
     <header class="bg-white shadow-md p-4 sticky top-0 z-50 flex-none">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 class="text-2xl md:text-3xl font-bold text-neuro-primary flex items-center gap-2 truncate">
-                🧠 NeuroActive
-            </h1>
+            <div class="flex items-center gap-2">
+                <button id="btn-global-back" onclick="app.switchTab('home')" class="hidden text-gray-800 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg font-bold transition mr-2 flex items-center gap-2">
+                    <span>⬅</span> Atrás
+                </button>
+                <h1 class="text-2xl md:text-3xl font-bold text-neuro-primary flex items-center gap-2 truncate">
+                    🧠 NeuroActive
+                </h1>
+            </div>
             <div id="user-badge" class="hidden flex items-center gap-3">
                 <span class="text-base md:text-lg font-semibold bg-blue-100 text-blue-900 px-4 py-2 rounded-full truncate max-w-[150px]" id="header-username">Usuario</span>
-                <button onclick="app.logout()" class="text-red-600 font-bold border-2 border-red-200 px-3 py-2 rounded-lg text-sm md:text-base hover:bg-red-50 whitespace-nowrap min-h-[44px] min-w-[44px]">Salir</button>
             </div>
         </div>
     </header>
@@ -208,11 +212,11 @@
         <!-- VISTA: JUEGO ACTIVO -->
         <section id="view-game" class="hidden flex flex-col h-full fade-in pb-4">
             <!-- Barra superior del juego -->
-            <div class="flex-none w-full flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm z-10 border border-gray-100">
-                <button onclick="app.switchTab('home')" class="text-base bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition min-h-[50px]">
-                    <span class="text-xl">⬅</span> Salir
-                </button>
-                <div class="text-xl font-bold text-neuro-primary">
+            <div class="flex-none w-full flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm z-10 border border-gray-100 gap-4">
+                <div id="game-message" class="text-xl md:text-2xl font-bold text-gray-800 leading-tight flex-grow text-center lg:text-left transition-all duration-300">
+                    Seleccione un juego
+                </div>
+                <div class="text-xl font-bold text-neuro-primary whitespace-nowrap">
                     <span id="game-score" class="text-3xl font-black">0</span> pts
                 </div>
             </div>
@@ -221,10 +225,6 @@
             <div id="game-scroll-container" class="flex-grow overflow-y-auto flex flex-col items-center justify-start w-full pb-24">
                 <div id="game-area" class="w-full max-w-md bg-white rounded-3xl shadow-lg border border-gray-100 p-6 min-h-[350px] flex flex-col items-center justify-center relative">
                     <!-- Inyección del juego -->
-                </div>
-
-                <div id="game-message" class="mt-6 text-2xl text-center font-bold text-gray-800 px-4 w-full min-h-[4rem] flex items-center justify-center">
-                    Seleccione un juego
                 </div>
             </div>
         </section>
@@ -549,7 +549,7 @@
             }
             clear() { this.container.innerHTML = ''; }
             message(text, color='text-gray-800') {
-                this.msgEl.className = `mt-6 text-2xl text-center font-bold ${color} px-4 transition-all duration-300 flex items-center justify-center min-h-[4rem]`;
+                this.msgEl.className = `text-xl md:text-2xl font-bold ${color} leading-tight flex-grow text-center lg:text-left transition-all duration-300`;
                 this.msgEl.innerText = text;
             }
             end() { this.stop(); this.onEnd(this.score); }
@@ -1033,6 +1033,14 @@
                 document.getElementById('tab-home').className = "flex flex-col items-center p-2 w-full text-gray-400 transition duration-200 rounded-xl active:bg-blue-50";
                 document.getElementById('tab-stats').className = "flex flex-col items-center p-2 w-full text-gray-400 transition duration-200 rounded-xl active:bg-blue-50";
 
+                // Toggle Back Button in Header
+                const backBtn = document.getElementById('btn-global-back');
+                if (tab === 'game') {
+                    backBtn.classList.remove('hidden');
+                } else {
+                    backBtn.classList.add('hidden');
+                }
+
                 if(tab === 'home') {
                     document.getElementById('view-home').classList.remove('hidden');
                     document.getElementById('tab-home').className = "flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50";
@@ -1047,6 +1055,11 @@
                 if(this.game && typeof this.game.stop === 'function') {
                     this.game.stop();
                 }
+
+                // Switch Logic handled here manually partly, but let's ensure we use switchTab logic or manual overrides if needed.
+                // Actually, switchTab hides everything. startGame reveals view-game.
+                // We need to ensure the back button is shown.
+                document.getElementById('btn-global-back').classList.remove('hidden');
 
                 document.getElementById('view-home').classList.add('hidden');
                 document.getElementById('view-game').classList.remove('hidden');
