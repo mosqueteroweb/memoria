@@ -121,6 +121,20 @@
                 </div>
             </div>
 
+            <!-- Categoría: Cálculo -->
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-orange-700 border-b-2 border-orange-200 pb-2 px-1">🧮 Cálculo</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <button onclick="app.startGame('mathOps')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-orange-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
+                        <div>
+                            <div class="font-bold text-xl group-hover:text-orange-700 transition-colors">Operaciones</div>
+                            <div class="text-base text-gray-600 mt-1">Cálculo mental rápido</div>
+                        </div>
+                        <span class="text-4xl">➕</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Categoría: Atención -->
             <div class="space-y-4">
                 <h3 class="text-xl font-bold text-green-700 border-b-2 border-green-200 pb-2 px-1">🟢 Control y Atención</h3>
@@ -263,7 +277,8 @@
             goNoGo:       { category: 'Atención', label: 'Semáforo' },
             languageOrder:{ category: 'Lenguaje', label: 'Frases' },
             wordAssoc:    { category: 'Lenguaje', label: 'Asociación' },
-            symbolSearch: { category: 'Velocidad', label: 'Símbolos' }
+            symbolSearch: { category: 'Velocidad', label: 'Símbolos' },
+            mathOps:      { category: 'Cálculo',   label: 'Operaciones' }
         };
 
         class DatabaseManager {
@@ -805,6 +820,206 @@
             }
         }
 
+        class MathGame extends GameEngine {
+            start() {
+                this.score = 0;
+                this.level = 1;
+                this.questionCount = 0;
+                this.next();
+            }
+            next() {
+                this.clear();
+                if (this.questionCount >= 10) return this.end();
+
+                // Determine complexity based on level/progress
+                // 0-3: 2 numbers (1 op)
+                // 4-7: 3 numbers (2 ops)
+                // 8-9: 4 numbers (3 ops)
+                let numOperands = 2;
+                if (this.questionCount >= 4) numOperands = 3;
+                if (this.questionCount >= 8) numOperands = 4;
+
+                const { expression, result } = this.generateExpression(numOperands);
+
+                this.message("Calcula:");
+                this.container.className = "flex flex-col items-center w-full";
+
+                let displayExpr = document.createElement('div');
+                displayExpr.innerText = expression + " = ?";
+                displayExpr.className = "text-5xl md:text-6xl font-black text-neuro-primary mb-8 tracking-wider";
+                this.container.appendChild(displayExpr);
+
+                // Options
+                let options = [result];
+                while(options.length < 3) {
+                    let offset = Math.floor(Math.random() * 10) + 1;
+                    if(Math.random() > 0.5) offset *= -1;
+                    let val = result + offset;
+                    if(val >= 0 && !options.includes(val)) options.push(val);
+                }
+                options.sort(() => Math.random() - 0.5);
+
+                let grid = document.createElement('div');
+                grid.className = "grid grid-cols-1 gap-4 w-full max-w-sm";
+
+                options.forEach(opt => {
+                    let b = document.createElement('button');
+                    b.innerText = opt;
+                    b.className = "bg-white border-2 border-gray-200 p-5 rounded-xl text-3xl font-bold shadow-sm hover:border-blue-400 active:bg-blue-50 transition-colors text-gray-800";
+                    b.onclick = () => {
+                        if(opt === result) {
+                            this.score += (10 * numOperands);
+                            this.onScore(this.score);
+                            this.message("¡Correcto!", "text-green-600");
+                        } else {
+                            this.message(`Era ${result}`, "text-red-600");
+                        }
+                        this.questionCount++;
+                        this.tmOut = setTimeout(() => this.next(), 1500);
+                    };
+                    grid.appendChild(b);
+                });
+                this.container.appendChild(grid);
+            }
+
+            generateExpression(num) {
+                // Ops: +, -, *, /
+                // Constraint: High precedence first
+                // Level 1 (2 nums): A op B
+                // Level 2 (3 nums): A op1 B op2 C. op1 should be * or / if op2 is + or -.
+
+                const opsHigh = ['×', '÷'];
+                const opsLow = ['+', '-'];
+
+                const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+                let terms = [];
+                let ops = [];
+
+                // We build the expression strictly ensuring integer division
+
+                if (num === 2) {
+                    // A op B
+                    let op = [...opsHigh, ...opsLow][Math.floor(Math.random() * 4)];
+                    let b = getRandomInt(2, 9); // Keep single digit for ease? Or up to 20.
+                    let a = getRandomInt(2, 20);
+
+                    if (op === '×') {
+                        a = getRandomInt(2, 12);
+                        b = getRandomInt(2, 9);
+                    } else if (op === '÷') {
+                        // Ensure a is multiple of b AND a <= 99
+                        // b * result = a. result can be anything, but a <= 99.
+                        // So b * (a/b) <= 99.
+                        // We generate result first?
+                        let q = getRandomInt(2, 12);
+                        b = getRandomInt(2, 9);
+                        while (q * b > 99) { q--; } // Adjust
+                        a = q * b;
+                    }
+
+                    return { expression: `${a} ${op} ${b}`, result: this.calc(a, b, op) };
+                }
+                else if (num === 3) {
+                    let schema = Math.random() > 0.3 ? 'HL' : 'HH';
+                    if (schema === 'HL') {
+                        let op1 = opsHigh[Math.floor(Math.random() * 2)];
+                        let op2 = opsLow[Math.floor(Math.random() * 2)];
+
+                        let b = getRandomInt(2, 9);
+                        let a = getRandomInt(2, 9);
+                        let c = getRandomInt(1, 50);
+
+                        if (op1 === '÷') {
+                            // A/B. A must be multiple of B and A <= 99.
+                            let q = getRandomInt(2, 9);
+                            if (q*b > 99) q = Math.floor(99/b);
+                            a = q * b;
+                        } else {
+                            // A*B. Must check A*B? Intermediate can be > 99?
+                            // User said "operandos", meaning the numbers shown. Result can be > 99?
+                            // Usually mental math keeps numbers reasonable.
+                        }
+
+                        let inter = this.calc(a, b, op1);
+                        return { expression: `${a} ${op1} ${b} ${op2} ${c}`, result: this.calc(inter, c, op2) };
+                    } else {
+                        // HH -> A * B / C
+                        // Avoid big numbers.
+                        let b = getRandomInt(2, 9);
+                        let c = getRandomInt(2, 9);
+                        let a = getRandomInt(2, 20);
+
+                        let op1 = Math.random() > 0.5 ? '×' : '÷';
+                        let op2 = '×'; // Simplification to ensure integers easily
+
+                        if (op1 === '÷') {
+                            let q = getRandomInt(2, 12);
+                            if (q*b > 99) q = Math.floor(99/b);
+                            a = q * b;
+                        }
+
+                        let res1 = this.calc(a, b, op1);
+                        return { expression: `${a} ${op1} ${b} ${op2} ${c}`, result: this.calc(res1, c, op2) };
+                    }
+                }
+                else {
+                    // 4 nums: A op1 B op2 C op3 D
+                    let op1 = opsHigh[Math.floor(Math.random() * 2)];
+                    let op2 = opsHigh[Math.floor(Math.random() * 2)];
+                    let op3 = opsLow[Math.floor(Math.random() * 2)];
+
+                    let a = getRandomInt(2, 15);
+                    let b = getRandomInt(2, 6);
+                    let c = getRandomInt(2, 6);
+                    let d = getRandomInt(1, 50);
+
+                    if (op1 === '÷') {
+                        // Ensure A <= 99
+                        let q = getRandomInt(2, 12);
+                        if (q*b > 99) q = Math.floor(99/b);
+                        a = q * b;
+                    }
+
+                    let r1 = this.calc(a, b, op1);
+
+                    if (op2 === '÷') {
+                        // r1 must be divisible by c.
+                        // r1 = A op1 B.
+                        // We need (r1) % c == 0.
+                        // Hard to adjust A/B backwards without exploding A > 99.
+                        // Strategy: Change op2 to * if not divisible?
+                        // Or ensure r1 is multiple of c.
+
+                        // Simplest fix: Just allow * for op2 if op1 was /.
+                        if (r1 % c !== 0) {
+                            op2 = '×';
+                        }
+                    } else {
+                        // If op2 is *, ensure intermediate doesn't explode too much?
+                        // It's mental math, we don't want 300 * 5.
+                        // But strictly user asked for operands < 100. 300 is result, not operand.
+                        // Operands are a, b, c, d. All generated < 99.
+                    }
+
+                    // Recalculate r1 just in case
+                    r1 = this.calc(a, b, op1);
+                    let r2 = this.calc(r1, c, op2);
+                    let r3 = this.calc(r2, d, op3);
+
+                    return { expression: `${a} ${op1} ${b} ${op2} ${c} ${op3} ${d}`, result: r3 };
+                }
+            }
+
+            calc(a, b, op) {
+                if(op === '+') return a + b;
+                if(op === '-') return a - b;
+                if(op === '×') return a * b;
+                if(op === '÷') return a / b;
+                return 0;
+            }
+        }
+
         class App {
             constructor() {
                 this.db = new DatabaseManager();
@@ -907,7 +1122,8 @@
                     goNoGo: GoNoGoGame,
                     languageOrder: LanguageOrderGame,
                     wordAssoc: WordAssocGame,
-                    symbolSearch: SymbolSearchGame
+                    symbolSearch: SymbolSearchGame,
+                    mathOps: MathGame
                 };
 
                 if(games[type]) {
