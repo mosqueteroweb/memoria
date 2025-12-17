@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NeuroActive 2.2 - Senior Edition</title>
+
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Carga de Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Carga de SQL.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+
+    <!-- Configuración de Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neuro-primary': '#2563EB',
+                        'neuro-secondary': '#10B981',
+                        'neuro-accent': '#F59E0B',
+                        'neuro-danger': '#EF4444',
+                        'neuro-purple': '#8B5CF6',
+                        'neuro-bg': '#F3F4F6',
+                        'neuro-card': '#FFFFFF',
+                        'neuro-text': '#111827' // Darker text for contrast
+                    },
+                    fontFamily: {
+                        sans: ['Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                    },
+                    screens: {
+                        'xs': '475px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Aumentamos tamaño base de fuente para accesibilidad (20px) */
+        body { font-size: 20px; -webkit-tap-highlight-color: transparent; }
+        .btn-neuro { transition: transform 0.1s, box-shadow 0.1s; }
+        .btn-neuro:active { transform: scale(0.98); } /* Efecto más sutil */
+        .fade-in { animation: fadeIn 0.4s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        #app-container {
+            scrollbar-width: thin;
+            scrollbar-color: #94A3B8 transparent; /* Darker scrollbar */
+        }
+
+        /* Utilidades para texto grande */
+        .text-huge { font-size: 1.5rem; line-height: 2rem; }
+    </style>
+</head>
+<body class="bg-neuro-bg text-neuro-text h-screen flex flex-col font-sans select-none overflow-hidden">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-md p-4 sticky top-0 z-50 flex-none">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4 flex-1">
+                <button id="btn-global-back" onclick="app.switchTab('home')" class="hidden text-gray-800 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg font-bold transition flex items-center gap-2 flex-none">
+                    <span>⬅</span> Atrás
+                </button>
+                <h1 class="text-2xl md:text-3xl font-bold text-neuro-primary flex items-center gap-2 truncate flex-1">
+                    🧠 NeuroActive
+                </h1>
+            </div>
+            <div id="user-badge" class="hidden flex items-center gap-3 flex-none">
+                <span class="text-base md:text-lg font-semibold bg-blue-100 text-blue-900 px-4 py-2 rounded-full truncate max-w-[150px]" id="header-username">Usuario</span>
+                <!-- Botón Salir Eliminado a petición del usuario -->
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main id="app-container" class="flex-grow p-4 md:p-6 max-w-5xl mx-auto w-full overflow-y-auto relative">
+
+        <!-- VISTA: LOGIN -->
+        <section id="view-login" class="flex flex-col items-center justify-center min-h-[60vh] fade-in">
+            <div class="bg-white p-8 md:p-10 rounded-3xl shadow-xl w-full max-w-md text-center border-t-8 border-neuro-primary mx-4">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-neuro-primary">Bienvenido</h2>
+                <p class="mb-8 text-gray-600 text-xl">Entrenamiento cognitivo diario</p>
+
+                <div class="space-y-6">
+                    <label for="input-username" class="sr-only">Escriba su nombre</label>
+                    <input type="text" id="input-username" placeholder="Escriba su nombre aquí"
+                        class="w-full p-5 text-2xl border-2 border-gray-300 rounded-xl focus:border-neuro-primary focus:outline-none text-center bg-gray-50 text-gray-900 placeholder-gray-500">
+
+                    <button id="btn-login" class="w-full bg-neuro-primary text-white text-2xl font-bold py-5 rounded-xl shadow-lg hover:bg-blue-700 btn-neuro">
+                        COMENZAR
+                    </button>
+                </div>
+                <p id="db-status" class="mt-8 text-base text-gray-500 italic">Cargando sistema...</p>
+            </div>
+        </section>
+
+        <!-- VISTA: SELECCIÓN DE JUEGOS (HOME) -->
+        <section id="view-home" class="hidden fade-in space-y-8 pb-40">
+            <div class="text-center mb-4">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900">¿Qué desea entrenar hoy?</h2>
+            </div>
+
+            <!-- Categoría: Memoria -->
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-blue-700 border-b-2 border-blue-200 pb-2 px-1">🔵 Memoria Visoespacial</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <button onclick="app.startGame('memoryMatrix')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-blue-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
+                        <div>
+                            <div class="font-bold text-xl group-hover:text-blue-700 transition-colors">Matriz de Memoria</div>
+                            <div class="text-base text-gray-600 mt-1">Recuerda las posiciones</div>
+                        </div>
+                        <span class="text-4xl">🧩</span>
+                    </button>
+                    <button onclick="app.startGame('spatialPath')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-blue-400 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
+                        <div>
+                            <div class="font-bold text-xl group-hover:text-blue-600 transition-colors">Ruta Espacial</div>
+                            <div class="text-base text-gray-600 mt-1">Sigue la secuencia</div>
+                        </div>
+                        <span class="text-4xl">📍</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Categoría: Atención -->
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-green-700 border-b-2 border-green-200 pb-2 px-1">🟢 Control y Atención</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <button onclick="app.startGame('stroop')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-green-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
+                        <div>
+                            <div class="font-bold text-xl group-hover:text-green-700 transition-colors">Colores Confusos</div>
+                            <div class="text-base text-gray-600 mt-1">Inhibición (Stroop)</div>
+                        </div>
+                        <span class="text-4xl">🎨</span>
+                    </button>
+                    <button onclick="app.startGame('goNoGo')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-green-400 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
+                        <div>
+                            <div class="font-bold text-xl group-hover:text-green-600 transition-colors">Semáforo (Go/No-Go)</div>
+                            <div class="text-base text-gray-600 mt-1">Control de impulsos</div>
+                        </div>
+                        <span class="text-4xl">🚦</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Categoría: Lenguaje -->
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-yellow-700 border-b-2 border-yellow-200 pb-2 px-1">🟡 Lenguaje</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <button onclick="app.startGame('languageOrder')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-yellow-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
+                        <div>
+                            <div class="font-bold text-xl group-hover:text-yellow-700 transition-colors">Ordenar Frases</div>
+                            <div class="text-base text-gray-600 mt-1">Sintaxis y lógica</div>
+                        </div>
+                        <span class="text-4xl">📝</span>
+                    </button>
+                    <button onclick="app.startGame('wordAssoc')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-yellow-400 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
+                        <div>
+                            <div class="font-bold text-xl group-hover:text-yellow-600 transition-colors">Asociación</div>
+                            <div class="text-base text-gray-600 mt-1">Sinónimos y conceptos</div>
+                        </div>
+                        <span class="text-4xl">🔗</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Categoría: Agilidad Mental -->
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-purple-700 border-b-2 border-purple-200 pb-2 px-1">🟣 Agilidad Mental</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <button onclick="app.startGame('symbolSearch')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-purple-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
+                        <div>
+                            <div class="font-bold text-xl group-hover:text-purple-700 transition-colors">Caza de Símbolos</div>
+                            <div class="text-base text-gray-600 mt-1">Escaneo visual rápido</div>
+                        </div>
+                        <span class="text-4xl">⚡</span>
+                    </button>
+                    <button onclick="app.startGame('mathOps')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-purple-400 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
+                        <div>
+                            <div class="font-bold text-xl group-hover:text-purple-600 transition-colors">Operaciones</div>
+                            <div class="text-base text-gray-600 mt-1">Cálculo mental rápido</div>
+                        </div>
+                        <span class="text-4xl">➕</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VISTA: ESTADÍSTICAS (DASHBOARD) -->
+        <section id="view-stats" class="hidden fade-in space-y-6 pb-40">
+            <h2 class="text-3xl font-bold text-gray-900 text-center">Informe de Progreso</h2>
+
+            <div class="bg-gradient-to-r from-blue-700 to-blue-500 rounded-2xl p-8 text-white text-center shadow-lg mx-auto max-w-md">
+                <p class="text-xl opacity-90 font-medium">Puntuación Global</p>
+                <div class="text-6xl font-black mt-3" id="global-score">0</div>
+                <p class="text-sm mt-3 opacity-90">Acumulado semanal</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-2xl shadow-md border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Perfil Cognitivo</h3>
+                    <div class="h-72 w-full relative">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-md border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Actividad (7 días)</h3>
+                    <div class="h-60 w-full">
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VISTA: JUEGO ACTIVO -->
+        <section id="view-game" class="hidden flex flex-col h-full fade-in pb-4">
+            <!-- Barra superior del juego -->
+            <div class="flex-none w-full flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm z-10 border border-gray-100 gap-4">
+                <div id="game-message" class="text-xl md:text-2xl font-bold text-gray-800 leading-tight flex-grow text-center lg:text-left transition-all duration-300">
+                    Seleccione un juego
+                </div>
+                <div class="text-xl font-bold text-neuro-primary whitespace-nowrap">
+                    <span id="game-score" class="text-3xl font-black">0</span> pts
+                </div>
+            </div>
+
+            <!-- Área de juego -->
+            <div id="game-scroll-container" class="flex-grow overflow-y-auto flex flex-col items-center justify-start w-full pb-24">
+                <div id="game-area" class="w-full max-w-md bg-white rounded-3xl shadow-lg border border-gray-100 p-6 min-h-[350px] flex flex-col items-center justify-center relative">
+                    <!-- Inyección del juego -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL COMPONENT -->
+    <div id="neuro-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center border-t-8 border-neuro-primary transform transition-all scale-100">
+            <h3 id="modal-title" class="text-3xl font-bold text-neuro-primary mb-4">Título</h3>
+            <p id="modal-message" class="text-xl text-gray-700 mb-8 leading-relaxed">Mensaje</p>
+            <button id="modal-action" class="w-full bg-neuro-primary text-white text-xl font-bold py-4 rounded-xl shadow-lg hover:bg-blue-700 btn-neuro">
+                CONTINUAR
+            </button>
+        </div>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <nav id="nav-tabs" class="hidden fixed bottom-0 w-full bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.15)] border-t border-gray-200 flex justify-around p-3 z-50 pb-safe safe-area-bottom h-24 items-start pt-4">
+        <button onclick="app.switchTab('home')" class="flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50" id="tab-home">
+            <span class="text-4xl mb-1">🎮</span>
+            <span class="text-sm md:text-base font-bold uppercase tracking-wide">Juegos</span>
+        </button>
+        <button onclick="app.switchTab('stats')" class="flex flex-col items-center p-2 w-full text-gray-400 hover:text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50" id="tab-stats">
+            <span class="text-4xl mb-1">📊</span>
+            <span class="text-sm md:text-base font-bold uppercase tracking-wide">Progreso</span>
+        </button>
+    </nav>
+
+    <!-- SCRIPTS -->
+    <script>
+        const GAME_CONFIG = {
+            memoryMatrix: { category: 'Memoria', label: 'Matriz' },
+            spatialPath:  { category: 'Memoria', label: 'Ruta' },
+            stroop:       { category: 'Atención', label: 'Stroop' },
+            goNoGo:       { category: 'Atención', label: 'Semáforo' },
+            languageOrder:{ category: 'Lenguaje', label: 'Frases' },
+            wordAssoc:    { category: 'Lenguaje', label: 'Asociación' },
+            symbolSearch: { category: 'Agilidad Mental', label: 'Símbolos' },
+            mathOps:      { category: 'Agilidad Mental', label: 'Operaciones' }
+        };
+
+        const GAME_CONTENT = {
+            languageOrder: [
+                { id: 'lo1', text: "El sol brilla mucho" },
+                { id: 'lo2', text: "La luna es blanca" },
+                { id: 'lo3', text: "El cielo es azul" },
+                { id: 'lo4', text: "El agua es clara" },
+                { id: 'lo5', text: "Me gusta el pan" },
+                { id: 'lo6', text: "Tomo café caliente" },
+                { id: 'lo7', text: "La sopa está rica" },
+                { id: 'lo8', text: "Como frutas dulces" },
+                { id: 'lo9', text: "El perro corre rápido" },
+                { id: 'lo10', text: "El gato duerme mucho" },
+                { id: 'lo11', text: "Los pájaros cantan bien" },
+                { id: 'lo12', text: "El pez nada feliz" },
+                { id: 'lo13', text: "Leo un buen libro" },
+                { id: 'lo14', text: "Escribo una carta" },
+                { id: 'lo15', text: "Escucho música suave" },
+                { id: 'lo16', text: "Veo la televisión" },
+                { id: 'lo17', text: "Camino por el parque" },
+                { id: 'lo18', text: "Riego las plantas" },
+                { id: 'lo19', text: "Lavo los platos" },
+                { id: 'lo20', text: "Limpio mi casa" },
+                { id: 'lo21', text: "La flor es roja" },
+                { id: 'lo22', text: "El árbol es alto" },
+                { id: 'lo23', text: "El pasto es verde" },
+                { id: 'lo24', text: "La rosa huele bien" },
+                { id: 'lo25', text: "Hoy es lunes" },
+                { id: 'lo26', text: "Mañana es martes" },
+                { id: 'lo27', text: "Ayer fue domingo" },
+                { id: 'lo28', text: "Es fin de semana" },
+                { id: 'lo29', text: "Hace mucho calor" },
+                { id: 'lo30', text: "Hace mucho frío" },
+                { id: 'lo31', text: "Llueve en la calle" },
+                { id: 'lo32', text: "Hay mucho viento" },
+                { id: 'lo33', text: "Uso zapatos cómodos" },
+                { id: 'lo34', text: "Llevo camisa azul" },
+                { id: 'lo35', text: "Pongo mi sombrero" },
+                { id: 'lo36', text: "Busco mis gafas" },
+                { id: 'lo37', text: "Abro la puerta" },
+                { id: 'lo38', text: "Cierro la ventana" },
+                { id: 'lo39', text: "Enciendo la luz" },
+                { id: 'lo40', text: "Apago el fuego" },
+                { id: 'lo41', text: "El coche es rojo" },
+                { id: 'lo42', text: "El tren es largo" },
+                { id: 'lo43', text: "El avión vuela alto" },
+                { id: 'lo44', text: "El barco flota bien" },
+                { id: 'lo45', text: "La mesa es grande" },
+                { id: 'lo46', text: "La silla es cómoda" },
+                { id: 'lo47', text: "La cama es blanda" },
+                { id: 'lo48', text: "El reloj marca hora" },
+                { id: 'lo49', text: "Tengo dos manos" },
+                { id: 'lo50', text: "Tengo dos pies" },
+                { id: 'lo51', text: "Veo con mis ojos" },
+                { id: 'lo52', text: "Oigo con oídos" },
+                { id: 'lo53', text: "El bebé llora poco" },
+                { id: 'lo54', text: "El niño juega mucho" },
+                { id: 'lo55', text: "La abuela teje lana" },
+                { id: 'lo56', text: "El abuelo lee diario" },
+                { id: 'lo57', text: "Cocino arroz blanco" },
+                { id: 'lo58', text: "Frio huevos frescos" },
+                { id: 'lo59', text: "Corto pan tierno" },
+                { id: 'lo60', text: "Bebo agua fría" },
+                { id: 'lo61', text: "El mar es inmenso" },
+                { id: 'lo62', text: "El río corre lento" },
+                { id: 'lo63', text: "La montaña es alta" },
+                { id: 'lo64', text: "El bosque es verde" },
+                { id: 'lo65', text: "La nieve es fría" },
+                { id: 'lo66', text: "El hielo es duro" },
+                { id: 'lo67', text: "El fuego quema mucho" },
+                { id: 'lo68', text: "La arena es fina" },
+                { id: 'lo69', text: "Compro pan fresco" },
+                { id: 'lo70', text: "Vendo cosas viejas" },
+                { id: 'lo71', text: "Pago la cuenta" },
+                { id: 'lo72', text: "Guardo mi dinero" },
+                { id: 'lo73', text: "Hablo con amigos" },
+                { id: 'lo74', text: "Llamo por teléfono" },
+                { id: 'lo75', text: "Visito a mi hijo" },
+                { id: 'lo76', text: "Recibo una carta" },
+                { id: 'lo77', text: "El día es largo" },
+                { id: 'lo78', text: "La noche es corta" },
+                { id: 'lo79', text: "La tarde es tranquila" },
+                { id: 'lo80', text: "La mañana es fresca" },
+                { id: 'lo81', text: "El verano es cálido" },
+                { id: 'lo82', text: "El invierno es frío" },
+                { id: 'lo83', text: "La primavera es bella" },
+                { id: 'lo84', text: "El otoño es gris" },
+                { id: 'lo85', text: "Me siento muy bien" },
+                { id: 'lo86', text: "Estoy muy feliz" },
+                { id: 'lo87', text: "Tengo mucha paz" },
+                { id: 'lo88', text: "Siento gran alegría" },
+                { id: 'lo89', text: "La vida es bella" },
+                { id: 'lo90', text: "El mundo es grande" },
+                { id: 'lo91', text: "El amor es bueno" },
+                { id: 'lo92', text: "La amistad es oro" },
+                { id: 'lo93', text: "El médico es bueno" },
+                { id: 'lo94', text: "La enfermera ayuda" },
+                { id: 'lo95', text: "Tomo mi medicina" },
+                { id: 'lo96', text: "Cuido mi salud" },
+                { id: 'lo97', text: "El perro ladra fuerte" },
+                { id: 'lo98', text: "El gato maúlla suave" },
+                { id: 'lo99', text: "El gallo canta pronto" },
+                { id: 'lo100', text: "La vaca come pasto" }
+            ],
+            wordAssoc: [
+                { id: 'wa1', type: "SINÓNIMO", w: "ALEGRE", opt: ["Feliz", "Triste", "Enojado"], ans: 0 },
+                { id: 'wa2', type: "ANTÓNIMO", w: "CALIENTE", opt: ["Ardiente", "Tibio", "Frío"], ans: 2 },
+                { id: 'wa3', type: "SINÓNIMO", w: "AUTO", opt: ["Rueda", "Coche", "Camino"], ans: 1 },
+                { id: 'wa4', type: "ANTÓNIMO", w: "LLENO", opt: ["Vacío", "Completo", "Saturado"], ans: 0 },
+                { id: 'wa5', type: "SINÓNIMO", w: "CASA", opt: ["Techo", "Calle", "Hogar"], ans: 2 },
+                { id: 'wa6', type: "ANTÓNIMO", w: "ALTO", opt: ["Largo", "Bajo", "Grande"], ans: 1 },
+                { id: 'wa7', type: "SINÓNIMO", w: "BONITO", opt: ["Feo", "Malo", "Lindo"], ans: 2 },
+                { id: 'wa8', type: "ANTÓNIMO", w: "DÍA", opt: ["Tarde", "Noche", "Mañana"], ans: 1 },
+                { id: 'wa9', type: "SINÓNIMO", w: "RÁPIDO", opt: ["Lento", "Pausado", "Veloz"], ans: 2 },
+                { id: 'wa10', type: "ANTÓNIMO", w: "VERDAD", opt: ["Realidad", "Mentira", "Cierto"], ans: 1 },
+                { id: 'wa11', type: "SINÓNIMO", w: "GRANDE", opt: ["Enorme", "Pequeño", "Corto"], ans: 0 },
+                { id: 'wa12', type: "ANTÓNIMO", w: "AMOR", opt: ["Cariño", "Odio", "Pasión"], ans: 1 },
+                { id: 'wa13', type: "SINÓNIMO", w: "MIRAR", opt: ["Tocar", "Oír", "Ver"], ans: 2 },
+                { id: 'wa14', type: "ANTÓNIMO", w: "ENTRAR", opt: ["Pasar", "Llegar", "Salir"], ans: 2 },
+                { id: 'wa15', type: "SINÓNIMO", w: "ESCUCHAR", opt: ["Oír", "Callar", "Hablar"], ans: 0 },
+                { id: 'wa16', type: "ANTÓNIMO", w: "SUBIR", opt: ["Elevar", "Saltar", "Bajar"], ans: 2 },
+                { id: 'wa17', type: "SINÓNIMO", w: "CAMINAR", opt: ["Correr", "Sentar", "Andar"], ans: 2 },
+                { id: 'wa18', type: "ANTÓNIMO", w: "REÍR", opt: ["Llorar", "Sonreír", "Gritar"], ans: 0 },
+                { id: 'wa19', type: "SINÓNIMO", w: "COMER", opt: ["Beber", "Ingerir", "Ayunar"], ans: 1 },
+                { id: 'wa20', type: "ANTÓNIMO", w: "DAR", opt: ["Recibir", "Regalar", "Ofrecer"], ans: 0 },
+                { id: 'wa21', type: "SINÓNIMO", w: "BEBER", opt: ["Tomar", "Comer", "Masticar"], ans: 0 },
+                { id: 'wa22', type: "ANTÓNIMO", w: "COMPRAR", opt: ["Pagar", "Gastarla", "Vender"], ans: 2 },
+                { id: 'wa23', type: "SINÓNIMO", w: "PELO", opt: ["Calvo", "Cabello", "Cabeza"], ans: 1 },
+                { id: 'wa24', type: "ANTÓNIMO", w: "DULCE", opt: ["Amargo", "Suave", "Rico"], ans: 0 },
+                { id: 'wa25', type: "SINÓNIMO", w: "ROSTRO", opt: ["Pie", "Mano", "Cara"], ans: 2 },
+                { id: 'wa26', type: "ANTÓNIMO", w: "CLARO", opt: ["Brillante", "Oscuro", "Blanco"], ans: 1 },
+                { id: 'wa27', type: "SINÓNIMO", w: "DANZA", opt: ["Música", "Baile", "Canto"], ans: 1 },
+                { id: 'wa28', type: "ANTÓNIMO", w: "FUERTE", opt: ["Sano", "Débil", "Duro"], ans: 1 },
+                { id: 'wa29', type: "SINÓNIMO", w: "MIEDO", opt: ["Temor", "Coraje", "Valor"], ans: 0 },
+                { id: 'wa30', type: "ANTÓNIMO", w: "JOVEN", opt: ["Niño", "Nuevo", "Viejo"], ans: 2 },
+                { id: 'wa31', type: "SINÓNIMO", w: "ENOJO", opt: ["Alegría", "Ira", "Paz"], ans: 1 },
+                { id: 'wa32', type: "ANTÓNIMO", w: "RICO", opt: ["Pobre", "Millonario", "Caro"], ans: 0 },
+                { id: 'wa33', type: "SINÓNIMO", w: "CALMA", opt: ["Paz", "Ruido", "Guerra"], ans: 0 },
+                { id: 'wa34', type: "ANTÓNIMO", w: "ANCHO", opt: ["Estrecho", "Amplio", "Gordo"], ans: 0 },
+                { id: 'wa35', type: "SINÓNIMO", w: "SANO", opt: ["Mal", "Saludable", "Enfermo"], ans: 1 },
+                { id: 'wa36', type: "ANTÓNIMO", w: "LIMPIO", opt: ["Puro", "Claro", "Sucio"], ans: 2 },
+                { id: 'wa37', type: "SINÓNIMO", w: "LISTO", opt: ["Tonto", "Lento", "Inteligente"], ans: 2 },
+                { id: 'wa38', type: "ANTÓNIMO", w: "SECO", opt: ["Duro", "Mojado", "Árido"], ans: 1 },
+                { id: 'wa39', type: "SINÓNIMO", w: "SIMPLE", opt: ["Difícil", "Sencillo", "Raro"], ans: 1 },
+                { id: 'wa40', type: "ANTÓNIMO", w: "VIVO", opt: ["Activo", "Fuerte", "Muerto"], ans: 2 },
+                { id: 'wa41', type: "SINÓNIMO", w: "AYUDAR", opt: ["Auxiliar", "Dañar", "Molestar"], ans: 0 },
+                { id: 'wa42', type: "ANTÓNIMO", w: "GANAR", opt: ["Perder", "Lograr", "Vencer"], ans: 0 },
+                { id: 'wa43', type: "SINÓNIMO", w: "OCULTO", opt: ["Visible", "Escondido", "Visto"], ans: 1 },
+                { id: 'wa44', type: "ANTÓNIMO", w: "CERCA", opt: ["Aquí", "Junto", "Lejos"], ans: 2 },
+                { id: 'wa45', type: "SINÓNIMO", w: "SALTAR", opt: ["Bajar", "Caer", "Brincar"], ans: 2 },
+                { id: 'wa46', type: "ANTÓNIMO", w: "SIEMPRE", opt: ["Hoy", "A veces", "Nunca"], ans: 2 },
+                { id: 'wa47', type: "SINÓNIMO", w: "QUERER", opt: ["Temer", "Amar", "Odiar"], ans: 1 },
+                { id: 'wa48', type: "ANTÓNIMO", w: "TODO", opt: ["Mucho", "Algo", "Nada"], ans: 2 },
+                { id: 'wa49', type: "SINÓNIMO", w: "OLOR", opt: ["Aroma", "Sabor", "Color"], ans: 0 },
+                { id: 'wa50', type: "ANTÓNIMO", w: "DIFÍCIL", opt: ["Malo", "Fácil", "Duro"], ans: 1 },
+                { id: 'wa51', type: "SINÓNIMO", w: "EXTRAÑO", opt: ["Normal", "Común", "Raro"], ans: 2 },
+                { id: 'wa52', type: "ANTÓNIMO", w: "AMIGO", opt: ["Vecino", "Compañero", "Enemigo"], ans: 2 },
+                { id: 'wa53', type: "SINÓNIMO", w: "REGALO", opt: ["Compra", "Venta", "Obsequio"], ans: 2 },
+                { id: 'wa54', type: "ANTÓNIMO", w: "PAZ", opt: ["Calma", "Amor", "Guerra"], ans: 2 },
+                { id: 'wa55', type: "SINÓNIMO", w: "ERROR", opt: ["Verdad", "Fallo", "Acierto"], ans: 1 },
+                { id: 'wa56', type: "ANTÓNIMO", w: "RECORDAR", opt: ["Olvidar", "Saber", "Pensar"], ans: 0 },
+                { id: 'wa57', type: "SINÓNIMO", w: "NORMAL", opt: ["Loco", "Común", "Raro"], ans: 1 },
+                { id: 'wa58', type: "ANTÓNIMO", w: "VALIENTE", opt: ["Cobarde", "Héroe", "Fuerte"], ans: 0 },
+                { id: 'wa59', type: "SINÓNIMO", w: "DOCENTE", opt: ["Maestro", "Alumno", "Escuela"], ans: 0 },
+                { id: 'wa60', type: "ANTÓNIMO", w: "MEJOR", opt: ["Bueno", "Peor", "Malo"], ans: 1 },
+                { id: 'wa61', type: "SINÓNIMO", w: "BARCO", opt: ["Auto", "Navío", "Avión"], ans: 1 },
+                { id: 'wa62', type: "ANTÓNIMO", w: "PRIMERO", opt: ["Último", "Segundo", "Inicio"], ans: 0 },
+                { id: 'wa63', type: "SINÓNIMO", w: "MEDICINA", opt: ["Veneno", "Fármaco", "Dolor"], ans: 1 },
+                { id: 'wa64', type: "ANTÓNIMO", w: "HOMBRE", opt: ["Humano", "Niño", "Mujer"], ans: 2 },
+                { id: 'wa65', type: "SINÓNIMO", w: "FELIZ", opt: ["Triste", "Mal", "Dichoso"], ans: 2 },
+                { id: 'wa66', type: "ANTÓNIMO", w: "DENTRO", opt: ["Sobre", "Entre", "Fuera"], ans: 2 },
+                { id: 'wa67', type: "SINÓNIMO", w: "EDIFICIO", opt: ["Suelo", "Construcción", "Casa"], ans: 1 },
+                { id: 'wa68', type: "ANTÓNIMO", w: "SILENCIO", opt: ["Mudo", "Callado", "Ruido"], ans: 2 },
+                { id: 'wa69', type: "SINÓNIMO", w: "PERRO", opt: ["Lobo", "Can", "Gato"], ans: 1 },
+                { id: 'wa70', type: "ANTÓNIMO", w: "NORTE", opt: ["Sur", "Oeste", "Este"], ans: 0 },
+                { id: 'wa71', type: "SINÓNIMO", w: "GATO", opt: ["Perro", "Ratón", "Felino"], ans: 2 },
+                { id: 'wa72', type: "ANTÓNIMO", w: "BLANCO", opt: ["Claro", "Negro", "Gris"], ans: 1 },
+                { id: 'wa73', type: "SINÓNIMO", w: "DINERO", opt: ["Cobre", "Plata", "Oro"], ans: 1 },
+                { id: 'wa74', type: "ANTÓNIMO", w: "INICIO", opt: ["Comienzo", "Fin", "Medio"], ans: 1 },
+                { id: 'wa75', type: "SINÓNIMO", w: "TIEMPO", opt: ["Reloj", "Rato", "Hora"], ans: 1 },
+                { id: 'wa76', type: "ANTÓNIMO", w: "SOLTERO", opt: ["Solo", "Casado", "Viudo"], ans: 1 },
+                { id: 'wa77', type: "SINÓNIMO", w: "CAMA", opt: ["Mesa", "Lecho", "Silla"], ans: 1 },
+                { id: 'wa78', type: "ANTÓNIMO", w: "CULPA", opt: ["Inocencia", "Mal", "Falta"], ans: 0 },
+                { id: 'wa79', type: "SINÓNIMO", w: "TRABAJO", opt: ["Ocio", "Labor", "Juego"], ans: 1 },
+                { id: 'wa80', type: "ANTÓNIMO", w: "CIELO", opt: ["Nube", "Tierra", "Aire"], ans: 1 },
+                { id: 'wa81', type: "SINÓNIMO", w: "FIESTA", opt: ["Celebración", "Reunión", "Duelo"], ans: 0 },
+                { id: 'wa82', type: "ANTÓNIMO", w: "LUZ", opt: ["Foco", "Sol", "Oscuridad"], ans: 2 },
+                { id: 'wa83', type: "SINÓNIMO", w: "PAÍS", opt: ["Ciudad", "Nación", "Pueblo"], ans: 1 },
+                { id: 'wa84', type: "ANTÓNIMO", w: "MOJAR", opt: ["Lavar", "Bañar", "Secar"], ans: 2 },
+                { id: 'wa85', type: "SINÓNIMO", w: "PIEDRA", opt: ["Arena", "Polvo", "Roca"], ans: 2 },
+                { id: 'wa86', type: "ANTÓNIMO", w: "JUNTAR", opt: ["Unir", "Separar", "Pegar"], ans: 1 },
+                { id: 'wa87', type: "SINÓNIMO", w: "SABER", opt: ["Conocer", "Ignorar", "Creer"], ans: 0 },
+                { id: 'wa88', type: "ANTÓNIMO", w: "ROMPER", opt: ["Dañar", "Arreglar", "Quebrar"], ans: 1 },
+                { id: 'wa89', type: "SINÓNIMO", w: "LLUVIA", opt: ["Viento", "Precipitación", "Sol"], ans: 1 },
+                { id: 'wa90', type: "ANTÓNIMO", w: "FLACO", opt: ["Fino", "Gordo", "Delgado"], ans: 1 },
+                { id: 'wa91', type: "SINÓNIMO", w: "AVIÓN", opt: ["Aeronave", "Tren", "Auto"], ans: 0 },
+                { id: 'wa92', type: "ANTÓNIMO", w: "LIBRE", opt: ["Solo", "Suelto", "Preso"], ans: 2 },
+                { id: 'wa93', type: "SINÓNIMO", w: "COLOR", opt: ["Tono", "Olor", "Forma"], ans: 0 },
+                { id: 'wa94', type: "ANTÓNIMO", w: "DORMIR", opt: ["Soñar", "Roncar", "Despertar"], ans: 2 },
+                { id: 'wa95', type: "SINÓNIMO", w: "HISTORIA", opt: ["Relato", "Libro", "Cuento"], ans: 0 },
+                { id: 'wa96', type: "ANTÓNIMO", w: "ATAQUE", opt: ["Lucha", "Defensa", "Golpe"], ans: 1 },
+                { id: 'wa97', type: "SINÓNIMO", w: "MARIDO", opt: ["Novio", "Esposo", "Hombre"], ans: 1 },
+                { id: 'wa98', type: "ANTÓNIMO", w: "PADRE", opt: ["Hijo", "Abuelo", "Madre"], ans: 0 },
+                { id: 'wa99', type: "SINÓNIMO", w: "COLEGIO", opt: ["Escuela", "Aula", "Clase"], ans: 0 },
+                { id: 'wa100', type: "ANTÓNIMO", w: "SUMAR", opt: ["Restar", "Contar", "Añadir"], ans: 0 }
+            ]
+        };
+
+        class DatabaseManager {
+            constructor() {
+                this.db = null;
+                this.SQL = null;
+                this.mode = 'unknown'; // 'sql' or 'local'
+                this.localData = { users: [], results: [], completed: [] };
+            }
+            async init() {
+                // Intentar cargar datos locales
+                const savedLocal = localStorage.getItem("neuroactive_local_fallback");
+                if (savedLocal) {
+                    this.localData = JSON.parse(savedLocal);
+                    if(!this.localData.completed) this.localData.completed = [];
+                }
+
+                try {
+                    // Intento de carga SQL.js
+                    if (typeof initSqlJs !== 'function') throw new Error("SQL.js not loaded");
+
+                    this.SQL = await initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}` });
+                    this.mode = 'sql';
+                    const savedDb = localStorage.getItem("neuroactive_v2_db");
+                    if (savedDb) {
+                        this.db = new this.SQL.Database(new Uint8Array(JSON.parse(savedDb)));
+                    } else {
+                        this.db = new this.SQL.Database();
+                    }
+                    // Asegurar que las tablas existan (migración para usuarios antiguos)
+                    this.createTables();
+                    return { success: true, mode: 'sql' };
+                } catch (e) {
+                    console.warn("SQL.js falló, usando modo localStorage:", e);
+                    this.mode = 'local';
+                    return { success: true, mode: 'local' }; // Return true but indicate local mode
+                }
+            }
+            createTables() {
+                if(this.mode !== 'sql') return;
+                // Use exec for multiple statements
+                this.db.exec(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT); CREATE TABLE IF NOT EXISTS results (id INTEGER PRIMARY KEY, user_id INTEGER, game_type TEXT, category TEXT, score INTEGER, timestamp INTEGER); CREATE TABLE IF NOT EXISTS completed (user_id INTEGER, game_type TEXT, item_id TEXT, PRIMARY KEY (user_id, game_type, item_id));`);
+                this.save();
+            }
+            save() {
+                if (this.mode === 'sql' && this.db) {
+                    try {
+                        localStorage.setItem("neuroactive_v2_db", JSON.stringify(Array.from(this.db.export())));
+                    } catch(e) { console.error("Save SQL error", e); }
+                } else {
+                    localStorage.setItem("neuroactive_local_fallback", JSON.stringify(this.localData));
+                }
+            }
+            loginUser(name) {
+                if (this.mode === 'sql') {
+                    let stmt = this.db.prepare("SELECT id, name FROM users WHERE name = :name");
+                    let user = stmt.getAsObject({':name': name});
+                    stmt.free();
+                    if (!user.id) {
+                        this.db.run("INSERT INTO users (name) VALUES (?)", [name]);
+                        this.save();
+                        const res = this.db.exec("SELECT last_insert_rowid()");
+                        user = { id: res[0].values[0][0], name: name };
+                    }
+                    return user;
+                } else {
+                    // Fallback Logic
+                    let user = this.localData.users.find(u => u.name === name);
+                    if (!user) {
+                        user = { id: Date.now(), name: name };
+                        this.localData.users.push(user);
+                        this.save();
+                    }
+                    return user;
+                }
+            }
+            saveResult(userId, gameType, score) {
+                const category = GAME_CONFIG[gameType] ? GAME_CONFIG[gameType].category : 'General';
+                if (this.mode === 'sql') {
+                    this.db.run("INSERT INTO results (user_id, game_type, category, score, timestamp) VALUES (?, ?, ?, ?, ?)", [userId, gameType, category, score, Date.now()]);
+                    this.save();
+                } else {
+                    this.localData.results.push({
+                        id: Date.now(),
+                        user_id: userId,
+                        game_type: gameType,
+                        category: category,
+                        score: score,
+                        timestamp: Date.now()
+                    });
+                    this.save();
+                }
+            }
+            markCompleted(userId, gameType, itemId) {
+                if(this.mode === 'sql') {
+                    this.db.run("INSERT OR IGNORE INTO completed (user_id, game_type, item_id) VALUES (?, ?, ?)", [userId, gameType, itemId]);
+                    this.save();
+                } else {
+                    if(!this.localData.completed) this.localData.completed = [];
+                    const exists = this.localData.completed.some(c => c.user_id == userId && c.game_type == gameType && c.item_id == itemId);
+                    if(!exists) {
+                        this.localData.completed.push({user_id: userId, game_type: gameType, item_id: itemId});
+                        this.save();
+                    }
+                }
+            }
+            getCompleted(userId, gameType) {
+                if(this.mode === 'sql') {
+                    const res = this.db.exec(`SELECT item_id FROM completed WHERE user_id = ${userId} AND game_type = '${gameType}'`);
+                    if(res.length > 0) return res[0].values.map(v => v[0]);
+                    return [];
+                } else {
+                    return this.localData.completed
+                        .filter(c => c.user_id == userId && c.game_type == gameType)
+                        .map(c => c.item_id);
+                }
+            }
+            getStats(userId) {
+                if (this.mode === 'sql') {
+                    const totalRes = this.db.exec(`SELECT SUM(score) FROM results WHERE user_id = ${userId}`);
+                    const totalScore = totalRes[0]?.values[0][0] || 0;
+                    const catRes = this.db.exec(`SELECT category, SUM(score) FROM results WHERE user_id = ${userId} GROUP BY category`);
+                const categoryScores = { 'Memoria': 0, 'Atención': 0, 'Lenguaje': 0, 'Agilidad Mental': 0 };
+                    if(catRes.length > 0) catRes[0].values.forEach(row => { categoryScores[row[0]] = row[1]; });
+                    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+                    const dailyRes = this.db.exec(`SELECT timestamp, score FROM results WHERE user_id = ${userId} AND timestamp > ${sevenDaysAgo}`);
+                    const dailyScores = {};
+                    if (dailyRes.length > 0) dailyRes[0].values.forEach(row => {
+                        const date = new Date(row[0]).toLocaleDateString(undefined, {weekday: 'short'});
+                        dailyScores[date] = (dailyScores[date] || 0) + row[1];
+                    });
+                    return { totalScore, categoryScores, dailyScores };
+                } else {
+                    // Fallback Logic
+                    const userResults = this.localData.results.filter(r => r.user_id == userId);
+                    const totalScore = userResults.reduce((sum, r) => sum + r.score, 0);
+                    const categoryScores = { 'Memoria': 0, 'Atención': 0, 'Lenguaje': 0, 'Agilidad Mental': 0 };
+                    userResults.forEach(r => {
+                        if (categoryScores[r.category] !== undefined) categoryScores[r.category] += r.score;
+                    });
+
+                    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+                    const dailyScores = {};
+                    userResults.filter(r => r.timestamp > sevenDaysAgo).forEach(r => {
+                        const date = new Date(r.timestamp).toLocaleDateString(undefined, {weekday: 'short'});
+                        dailyScores[date] = (dailyScores[date] || 0) + r.score;
+                    });
+                    return { totalScore, categoryScores, dailyScores };
+                }
+            }
+        }
+
+        class GameEngine {
+            constructor(container, msgEl, onScore, onEnd) {
+                this.container = container;
+                this.msgEl = msgEl;
+                this.onScore = onScore;
+                this.onEnd = onEnd;
+                this.score = 0;
+                this.level = 1;
+                this.active = false;
+                this.tmOut = null;
+            }
+            clear() { this.container.innerHTML = ''; }
+            message(text, color='text-gray-800') {
+                this.msgEl.className = `text-xl md:text-2xl font-bold ${color} leading-tight flex-grow text-center lg:text-left transition-all duration-300`;
+                this.msgEl.innerText = text;
+            }
+            end() { this.stop(); this.onEnd(this.score); }
+            stop() {
+                this.active = false;
+                if(this.tmOut) clearTimeout(this.tmOut);
+            }
+        }
+
+        class MemoryMatrixGame extends GameEngine {
+            start() { this.score = 0; this.level = 1; this.next(); }
+            next() {
+                this.clear();
+                this.active = false;
+                this.message(`Nivel ${this.level}: Memoriza`);
+
+                let size = this.level < 3 ? 3 : (this.level < 6 ? 4 : 5);
+                let count = 2 + Math.floor(this.level/2);
+
+                this.container.className = "w-full max-w-xs grid gap-3 mx-auto transition-all duration-300";
+                this.container.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+
+                let cells = [];
+                for(let i=0; i<size*size; i++) {
+                    let d = document.createElement('div');
+                    d.className = 'bg-gray-200 w-full aspect-square rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-300';
+                    d.onclick = () => this.click(i, d);
+                    this.container.appendChild(d);
+                    cells.push(d);
+                }
+
+                let pattern = [];
+                while(pattern.length < count) {
+                    let r = Math.floor(Math.random()*(size*size));
+                    if(!pattern.includes(r)) pattern.push(r);
+                }
+                this.pattern = pattern;
+                this.userPattern = [];
+
+                // Timings adjusted for seniors
+                this.tmOut = setTimeout(() => {
+                    pattern.forEach(i => cells[i].classList.replace('bg-gray-200', 'bg-neuro-primary'));
+                    this.tmOut = setTimeout(() => {
+                        pattern.forEach(i => cells[i].classList.replace('bg-neuro-primary', 'bg-gray-200'));
+                        this.active = true;
+                        this.message("¡Repite el patrón!");
+                    }, 1500 + (this.level * 300)); // Slower show time
+                }, 800);
+            }
+            click(i, el) {
+                if(!this.active || this.userPattern.includes(i)) return;
+
+                el.classList.remove('hover:bg-gray-300'); // Remove hover effect to show true color
+
+                if(this.pattern.includes(i)) {
+                    el.classList.replace('bg-gray-200', 'bg-neuro-secondary');
+                    this.userPattern.push(i);
+                    if(this.userPattern.length === this.pattern.length) {
+                        this.score += (10 * this.level);
+                        this.onScore(this.score);
+                        this.level++;
+                        this.active = false;
+                        this.tmOut = setTimeout(() => this.next(), 1000); // Slower transition
+                    }
+                } else {
+                    el.classList.replace('bg-gray-200', 'bg-neuro-danger');
+                    this.message("¡Incorrecto!", 'text-red-600');
+                    this.tmOut = setTimeout(() => this.end(), 1500);
+                }
+            }
+        }
+
+        class SpatialPathGame extends GameEngine {
+            start() { this.score = 0; this.level = 1; this.next(); }
+            async next() {
+                this.clear();
+                this.active = false;
+                this.message(`Nivel ${this.level}`);
+
+                this.container.className = "w-full max-w-[300px] grid grid-cols-3 gap-5 mx-auto";
+
+                let cells = [];
+                for(let i=0; i<9; i++) {
+                    let d = document.createElement('div');
+                    d.className = 'bg-gray-100 border-2 border-gray-300 w-full aspect-square rounded-full shadow-sm cursor-pointer transition-transform active:scale-95';
+                    d.onclick = () => this.click(i, d);
+                    this.container.appendChild(d);
+                    cells.push(d);
+                }
+
+                let length = 2 + Math.floor(this.level/2);
+                this.sequence = [];
+                for(let i=0; i<length; i++) this.sequence.push(Math.floor(Math.random()*9));
+                this.userStep = 0;
+
+                await new Promise(r => { this.tmOut = setTimeout(r, 800); });
+
+                for(let idx of this.sequence) {
+                    if(!this.container.isConnected) return; // Stop if removed
+                    cells[idx].classList.add('bg-neuro-primary', 'scale-110', 'border-blue-700');
+                    await new Promise(r => { this.tmOut = setTimeout(r, 1000); });
+                    cells[idx].classList.remove('bg-neuro-primary', 'scale-110', 'border-blue-700');
+                    await new Promise(r => { this.tmOut = setTimeout(r, 300); });
+                }
+                this.active = true;
+                this.message("Tu turno");
+            }
+            click(i, el) {
+                if(!this.active) return;
+                el.classList.add('bg-yellow-200');
+                setTimeout(()=>el.classList.remove('bg-yellow-200'), 200);
+
+                if(i === this.sequence[this.userStep]) {
+                    this.userStep++;
+                    if(this.userStep >= this.sequence.length) {
+                        this.score += 20;
+                        this.onScore(this.score);
+                        this.message("¡Bien!", "text-green-600");
+                        this.level++;
+                        this.active = false;
+                        this.tmOut = setTimeout(() => this.next(), 1000);
+                    }
+                } else {
+                    this.message("Error de secuencia", "text-red-600");
+                    this.tmOut = setTimeout(() => this.end(), 1500);
+                }
+            }
+        }
+
+        class StroopGame extends GameEngine {
+            start() { this.score = 0; this.rounds = 0; this.next(); }
+            next() {
+                this.clear();
+                if(this.rounds >= 10) return this.end();
+                this.message("¿De qué COLOR es la tinta?");
+
+                const colors = [
+                    {n:'ROJO', c:'text-red-600'}, {n:'AZUL', c:'text-blue-600'}, {n:'VERDE', c:'text-green-600'}
+                ];
+                let txtIdx = Math.floor(Math.random()*3);
+                let colIdx = Math.random() > 0.4 ? (txtIdx + 1)%3 : txtIdx;
+
+                this.container.className = "flex flex-col items-center w-full";
+
+                let word = document.createElement('div');
+                word.innerText = colors[txtIdx].n;
+                word.className = `text-6xl md:text-8xl font-black mb-10 mt-6 ${colors[colIdx].c}`;
+                this.container.appendChild(word);
+
+                let btnCont = document.createElement('div');
+                btnCont.className = "grid grid-cols-3 gap-4 w-full";
+                colors.forEach((c, i) => {
+                    let b = document.createElement('button');
+                    b.innerText = c.n;
+                    b.className = "py-6 bg-gray-50 border-2 border-gray-300 rounded-xl font-bold text-gray-800 active:bg-gray-200 active:scale-95 transition-all text-lg md:text-xl";
+                    b.onclick = () => {
+                        if(i === colIdx) {
+                            this.score += 15;
+                            this.onScore(this.score);
+                            this.message("¡Bien!", "text-green-600");
+                        } else {
+                            this.message("Fallaste", "text-red-600");
+                        }
+                        this.rounds++;
+                        this.tmOut = setTimeout(() => this.next(), 1000);
+                    }
+                    btnCont.appendChild(b);
+                });
+                this.container.appendChild(btnCont);
+            }
+        }
+
+        class GoNoGoGame extends GameEngine {
+            start() {
+                this.score = 0; this.rounds = 0;
+                this.container.className = "flex flex-col items-center justify-center w-full h-full";
+                this.container.innerHTML = `
+                    <div id="stimulus" class="w-40 h-40 md:w-52 md:h-52 rounded-3xl bg-gray-200 mb-10 transition-all duration-200 border-4 border-transparent"></div>
+                    <button id="go-btn" class="w-full max-w-sm bg-neuro-primary text-white py-6 rounded-2xl text-3xl font-bold shadow-lg active:scale-95 touch-manipulation">¡PULSAR!</button>
+                `;
+                this.stimulus = document.getElementById('stimulus');
+                this.btn = document.getElementById('go-btn');
+                this.btn.onclick = () => this.handleClick();
+                this.next();
+            }
+            next() {
+                if(this.rounds >= 15) return this.end();
+                this.stimulus.className = "w-40 h-40 md:w-52 md:h-52 rounded-3xl bg-gray-200 mb-10 border-4 border-gray-300";
+                this.message("Espera al VERDE...");
+
+                this.tmOut = setTimeout(() => {
+                    if(!this.container.isConnected) return; // Check if unmounted
+                    this.active = true;
+                    this.isTarget = Math.random() > 0.3;
+                    if(this.isTarget) {
+                        this.stimulus.className = "w-40 h-40 md:w-52 md:h-52 rounded-xl bg-green-500 mb-10 shadow-2xl scale-110 border-4 border-green-700";
+                    } else {
+                        this.stimulus.className = "w-40 h-40 md:w-52 md:h-52 rounded-full bg-red-500 mb-10 shadow-2xl border-4 border-red-700";
+                    }
+                    this.timeout = setTimeout(() => {
+                        if(this.active) {
+                            if(this.isTarget) this.message("¡Lento!", "text-orange-600");
+                            else {
+                                this.score += 5;
+                                this.onScore(this.score);
+                                this.message("Bien (Inhibición)", "text-green-600");
+                            }
+                            this.finishRound();
+                        }
+                    }, 2000); // Increased window to 2s
+                }, 1500 + Math.random()*2000); // Slower start
+            }
+            handleClick() {
+                if(!this.active) return;
+                clearTimeout(this.timeout);
+                if(this.isTarget) {
+                    this.score += 15;
+                    this.onScore(this.score);
+                    this.message("¡Excelente!", "text-green-600");
+                } else {
+                    this.score -= 5;
+                    this.onScore(this.score);
+                    this.message("¡NO!", "text-red-600");
+                }
+                this.finishRound();
+            }
+            finishRound() {
+                this.active = false;
+                this.rounds++;
+                this.tmOut = setTimeout(() => this.next(), 1200);
+            }
+            stop() {
+                super.stop();
+                if(this.timeout) clearTimeout(this.timeout);
+            }
+        }
+
+        class LanguageOrderGame extends GameEngine {
+            start() {
+                try {
+                    this.score = 0;
+
+                    const completed = app.db.getCompleted(app.user.id, 'languageOrder');
+                    let available = GAME_CONTENT.languageOrder.filter(i => !completed.includes(i.id));
+
+                    if(available.length === 0) {
+                        available = [...GAME_CONTENT.languageOrder];
+                    }
+
+                    this.queue = available.sort(() => Math.random() - 0.5);
+                    this.next();
+                } catch(e) {
+                    console.error("Language Game Start Error", e);
+                    this.message("Error cargando el juego", "text-red-600");
+                }
+            }
+            next() {
+                this.clear();
+                if(this.queue.length === 0) return this.end();
+
+                this.currentItem = this.queue.pop();
+                let target = this.currentItem.text;
+
+                let words = target.split(' ').sort(() => Math.random()-0.5);
+                let current = [];
+
+                this.message("Forma la frase:");
+                this.container.className = "w-full max-w-md flex flex-col";
+
+                let zone = document.createElement('div');
+                zone.className = "w-full min-h-[90px] bg-blue-50 border-4 border-dashed border-blue-200 rounded-xl mb-8 flex flex-wrap gap-3 p-4 justify-center items-center transition-all";
+                this.container.appendChild(zone);
+
+                let bank = document.createElement('div');
+                bank.className = "flex flex-wrap gap-3 justify-center content-start";
+
+                words.forEach(w => {
+                    let b = document.createElement('button');
+                    b.innerText = w;
+                    b.className = "bg-white border-2 border-gray-300 shadow-sm px-5 py-3 rounded-xl text-xl font-bold text-gray-800 active:scale-95 transition-transform min-h-[50px]";
+                    b.onclick = () => {
+                        if(b.parentElement === bank) {
+                            zone.appendChild(b);
+                            current.push(w);
+                        } else {
+                            bank.appendChild(b);
+                            current.splice(current.indexOf(w), 1);
+                        }
+                        if(current.join(' ') === target) {
+                            this.score += 20;
+                            this.onScore(this.score);
+                            this.message("¡Perfecto!", "text-green-600");
+                            // Mark completed
+                            app.db.markCompleted(app.user.id, 'languageOrder', this.currentItem.id);
+
+                            this.tmOut = setTimeout(() => this.next(), 1200);
+                        }
+                    };
+                    bank.appendChild(b);
+                });
+                this.container.appendChild(bank);
+            }
+        }
+
+        class WordAssocGame extends GameEngine {
+            start() {
+                try {
+                    this.score = 0;
+
+                    const completed = app.db.getCompleted(app.user.id, 'wordAssoc');
+                    let available = GAME_CONTENT.wordAssoc.filter(i => !completed.includes(i.id));
+
+                    if(available.length === 0) {
+                        available = [...GAME_CONTENT.wordAssoc];
+                    }
+
+                    this.queue = available.sort(() => Math.random() - 0.5);
+                    this.next();
+                } catch(e) {
+                    console.error("Word Assoc Start Error", e);
+                    this.message("Error cargando el juego", "text-red-600");
+                }
+            }
+            next() {
+                this.clear();
+                if(this.queue.length === 0) return this.end();
+
+                this.currentItem = this.queue.pop();
+                let q = this.currentItem;
+
+                this.message(`Busca el ${q.type} de:`);
+                this.container.className = "flex flex-col items-center w-full";
+
+                let main = document.createElement('div');
+                main.innerText = q.w;
+                main.className = "text-5xl md:text-6xl font-black text-neuro-primary mb-8";
+                this.container.appendChild(main);
+
+                let grid = document.createElement('div');
+                grid.className = "grid grid-cols-1 gap-4 w-full max-w-sm";
+
+                q.opt.forEach((opt, i) => {
+                    let b = document.createElement('button');
+                    b.innerText = opt;
+                    b.className = "bg-white border-2 border-gray-200 p-5 rounded-xl text-2xl font-bold shadow-sm hover:border-blue-400 active:bg-blue-50 transition-colors text-gray-800";
+                    b.onclick = () => {
+                        if(i === q.ans) {
+                            this.score += 15;
+                            this.onScore(this.score);
+                            this.message("Correcto", "text-green-600");
+                            // Mark completed
+                            app.db.markCompleted(app.user.id, 'wordAssoc', q.id);
+                        } else {
+                            this.message("Incorrecto", "text-red-600");
+                        }
+                        this.tmOut = setTimeout(() => this.next(), 1200);
+                    };
+                    grid.appendChild(b);
+                });
+                this.container.appendChild(grid);
+            }
+        }
+
+        class SymbolSearchGame extends GameEngine {
+            start() {
+                this.score = 0; this.timeLeft = 45; // More time (45s)
+                this.active = true;
+                this.timerInt = null;
+
+                this.timerInt = setInterval(() => {
+                    this.timeLeft--;
+                    this.message(`Tiempo: ${this.timeLeft}s`, "text-purple-700");
+                    if(this.timeLeft <= 0) {
+                        this.stop(); // Stop clears interval
+                        this.onEnd(this.score);
+                    }
+                }, 1000);
+                this.renderGrid();
+            }
+            renderGrid() {
+                this.clear();
+                if(!this.active) return;
+
+                const symbols = ['★', '●', '■', '▲', '♦', '♥', '♣', '♠'];
+                const target = symbols[Math.floor(Math.random()*symbols.length)];
+
+                this.container.className = "flex flex-col items-center w-full max-w-sm mx-auto";
+
+                let info = document.createElement('div');
+                info.innerHTML = `Busca: <span class="text-6xl font-bold text-neuro-primary align-middle ml-4 bg-blue-50 px-4 rounded-lg border border-blue-100">${target}</span>`;
+                info.className = "mb-8 text-2xl flex items-center";
+                this.container.appendChild(info);
+
+                let grid = document.createElement('div');
+                grid.className = "grid grid-cols-4 gap-4 w-full";
+
+                let items = [];
+                for(let i=0; i<11; i++) {
+                    let s = symbols[Math.floor(Math.random()*symbols.length)];
+                    if(s === target) s = symbols[(symbols.indexOf(s)+1)%symbols.length];
+                    items.push({s: s, isT: false});
+                }
+                items.push({s: target, isT: true});
+                items.sort(() => Math.random()-0.5);
+
+                items.forEach(item => {
+                    let b = document.createElement('button');
+                    b.innerText = item.s;
+                    b.className = "w-full aspect-square bg-gray-50 border-2 border-gray-200 rounded-xl text-4xl flex items-center justify-center shadow-sm active:bg-gray-200 transition-colors";
+                    b.onclick = () => {
+                        if(item.isT) {
+                            this.score += 5;
+                            this.onScore(this.score);
+                            this.renderGrid();
+                        } else {
+                            b.classList.add('bg-red-100', 'border-red-300');
+                            setTimeout(()=>b.classList.remove('bg-red-100', 'border-red-300'), 300);
+                        }
+                    };
+                    grid.appendChild(b);
+                });
+                this.container.appendChild(grid);
+            }
+            stop() {
+                super.stop();
+                if(this.timerInt) clearInterval(this.timerInt);
+            }
+        }
+
+        class MathGame extends GameEngine {
+            start() {
+                this.score = 0;
+                this.level = 1;
+                this.questionCount = 0;
+                this.next();
+            }
+            next() {
+                this.clear();
+                if (this.questionCount >= 10) return this.end();
+
+                // Determine complexity based on level/progress
+                // 0-3: 2 numbers (1 op)
+                // 4-7: 3 numbers (2 ops)
+                // 8-9: 4 numbers (3 ops)
+                let numOperands = 2;
+                if (this.questionCount >= 4) numOperands = 3;
+                if (this.questionCount >= 8) numOperands = 4;
+
+                const { expression, result } = this.generateExpression(numOperands);
+
+                this.message("Calcula:");
+                this.container.className = "flex flex-col items-center w-full";
+
+                let displayExpr = document.createElement('div');
+                displayExpr.innerText = expression + " = ?";
+                displayExpr.className = "text-5xl md:text-6xl font-black text-neuro-primary mb-8 tracking-wider";
+                this.container.appendChild(displayExpr);
+
+                // Options
+                let options = [result];
+                let attempts = 0;
+                while(options.length < 3 && attempts < 50) {
+                    let offset = Math.floor(Math.random() * 10) + 1;
+                    if(Math.random() > 0.5) offset *= -1;
+                    let val = result + offset;
+                    // Allow negative options if result is negative, or just relax constraint if hard to find
+                    if((val >= 0 || result < 0) && !options.includes(val)) options.push(val);
+                    attempts++;
+                }
+                // Fallback if loop failed
+                while(options.length < 3) {
+                    options.push(options[0] + options.length + 1);
+                }
+                options.sort(() => Math.random() - 0.5);
+
+                let grid = document.createElement('div');
+                grid.className = "grid grid-cols-1 gap-4 w-full max-w-sm";
+
+                options.forEach(opt => {
+                    let b = document.createElement('button');
+                    b.innerText = opt;
+                    b.className = "bg-white border-2 border-gray-200 p-5 rounded-xl text-3xl font-bold shadow-sm hover:border-blue-400 active:bg-blue-50 transition-colors text-gray-800";
+                    b.onclick = () => {
+                        if(opt === result) {
+                            this.score += (10 * numOperands);
+                            this.onScore(this.score);
+                            this.message("¡Correcto!", "text-green-600");
+                        } else {
+                            this.message(`Era ${result}`, "text-red-600");
+                        }
+                        this.questionCount++;
+                        this.tmOut = setTimeout(() => this.next(), 1500);
+                    };
+                    grid.appendChild(b);
+                });
+                this.container.appendChild(grid);
+            }
+
+            generateExpression(num) {
+                // Ops: +, -, *, /
+                // Constraint: High precedence first
+                // Level 1 (2 nums): A op B
+                // Level 2 (3 nums): A op1 B op2 C. op1 should be * or / if op2 is + or -.
+
+                const opsHigh = ['×', '÷'];
+                const opsLow = ['+', '-'];
+
+                const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+                let terms = [];
+                let ops = [];
+
+                // We build the expression strictly ensuring integer division
+
+                if (num === 2) {
+                    // A op B
+                    let op = [...opsHigh, ...opsLow][Math.floor(Math.random() * 4)];
+                    let b = getRandomInt(2, 9); // Keep single digit for ease? Or up to 20.
+                    let a = getRandomInt(2, 20);
+
+                    if (op === '×') {
+                        a = getRandomInt(2, 12);
+                        b = getRandomInt(2, 9);
+                    } else if (op === '-') {
+                        if (b > a) { let t = a; a = b; b = t; } // Swap to avoid negative
+                    } else if (op === '÷') {
+                        // Ensure a is multiple of b AND a <= 99
+                        let q = getRandomInt(2, 12);
+                        b = getRandomInt(2, 9);
+                        // Calculate q directly to satisfy constraint instead of looping
+                        if (q * b > 99) q = Math.floor(99 / b);
+                        a = q * b;
+                    }
+
+                    return { expression: `${a} ${op} ${b}`, result: this.calc(a, b, op) };
+                }
+                else if (num === 3) {
+                    let schema = Math.random() > 0.3 ? 'HL' : 'HH';
+                    if (schema === 'HL') {
+                        let op1 = opsHigh[Math.floor(Math.random() * 2)];
+                        let op2 = opsLow[Math.floor(Math.random() * 2)];
+
+                        let b = getRandomInt(2, 9);
+                        let a = getRandomInt(2, 9);
+                        let c = getRandomInt(1, 50);
+
+                        if (op1 === '÷') {
+                            // A/B. A must be multiple of B and A <= 99.
+                            let q = getRandomInt(2, 9);
+                            if (q*b > 99) q = Math.floor(99/b);
+                            a = q * b;
+                        } else {
+                            // A*B. Must check A*B? Intermediate can be > 99?
+                            // User said "operandos", meaning the numbers shown. Result can be > 99?
+                            // Usually mental math keeps numbers reasonable.
+                        }
+
+                        let inter = this.calc(a, b, op1);
+                        return { expression: `${a} ${op1} ${b} ${op2} ${c}`, result: this.calc(inter, c, op2) };
+                    } else {
+                        // HH -> A * B / C
+                        // Avoid big numbers.
+                        let b = getRandomInt(2, 9);
+                        let c = getRandomInt(2, 9);
+                        let a = getRandomInt(2, 20);
+
+                        let op1 = Math.random() > 0.5 ? '×' : '÷';
+                        let op2 = '×'; // Simplification to ensure integers easily
+
+                        if (op1 === '÷') {
+                            let q = getRandomInt(2, 12);
+                            if (q*b > 99) q = Math.floor(99/b);
+                            a = q * b;
+                        }
+
+                        let res1 = this.calc(a, b, op1);
+                        return { expression: `${a} ${op1} ${b} ${op2} ${c}`, result: this.calc(res1, c, op2) };
+                    }
+                }
+                else {
+                    // 4 nums: A op1 B op2 C op3 D
+                    let op1 = opsHigh[Math.floor(Math.random() * 2)];
+                    let op2 = opsHigh[Math.floor(Math.random() * 2)];
+                    let op3 = opsLow[Math.floor(Math.random() * 2)];
+
+                    let a = getRandomInt(2, 15);
+                    let b = getRandomInt(2, 6);
+                    let c = getRandomInt(2, 6);
+                    let d = getRandomInt(1, 50);
+
+                    if (op1 === '÷') {
+                        // Ensure A <= 99
+                        let q = getRandomInt(2, 12);
+                        if (q*b > 99) q = Math.floor(99/b);
+                        a = q * b;
+                    }
+
+                    let r1 = this.calc(a, b, op1);
+
+                    if (op2 === '÷') {
+                        // r1 must be divisible by c.
+                        // r1 = A op1 B.
+                        // We need (r1) % c == 0.
+                        // Hard to adjust A/B backwards without exploding A > 99.
+                        // Strategy: Change op2 to * if not divisible?
+                        // Or ensure r1 is multiple of c.
+
+                        // Simplest fix: Just allow * for op2 if op1 was /.
+                        if (r1 % c !== 0) {
+                            op2 = '×';
+                        }
+                    } else {
+                        // If op2 is *, ensure intermediate doesn't explode too much?
+                        // It's mental math, we don't want 300 * 5.
+                        // But strictly user asked for operands < 100. 300 is result, not operand.
+                        // Operands are a, b, c, d. All generated < 99.
+                    }
+
+                    // Recalculate r1 just in case
+                    r1 = this.calc(a, b, op1);
+                    let r2 = this.calc(r1, c, op2);
+                    let r3 = this.calc(r2, d, op3);
+
+                    return { expression: `${a} ${op1} ${b} ${op2} ${c} ${op3} ${d}`, result: r3 };
+                }
+            }
+
+            calc(a, b, op) {
+                if(op === '+') return a + b;
+                if(op === '-') return a - b;
+                if(op === '×') return a * b;
+                if(op === '÷') return a / b;
+                return 0;
+            }
+        }
+
+        class App {
+            constructor() {
+                this.db = new DatabaseManager();
+                this.user = null;
+                this.charts = {};
+                this.currentGameType = null;
+            }
+            async init() {
+                const statusEl = document.getElementById('db-status');
+                const result = await this.db.init();
+
+                if (result.success) {
+                    if(result.mode === 'sql') statusEl.innerText = "Sistema listo.";
+                    else statusEl.innerText = "Modo desconectado activo.";
+                } else {
+                    statusEl.innerText = "Error de carga.";
+                }
+
+                const uid = localStorage.getItem('na_uid');
+                const uname = localStorage.getItem('na_uname');
+                if(uid && uname) this.setUser({id:uid, name:uname});
+
+                document.getElementById('btn-login').onclick = () => {
+                    const name = document.getElementById('input-username').value.trim();
+                    if(name) {
+                        try {
+                            const u = this.db.loginUser(name);
+                            localStorage.setItem('na_uid', u.id);
+                            localStorage.setItem('na_uname', u.name);
+                            this.setUser(u);
+                        } catch(e) {
+                            this.showModal("Error", "Error al iniciar sesión: " + e.message);
+                        }
+                    } else {
+                        this.showModal("Atención", "Por favor, escriba su nombre");
+                    }
+                };
+            }
+            setUser(u) {
+                this.user = u;
+                document.getElementById('header-username').innerText = u.name;
+                document.getElementById('user-badge').classList.remove('hidden');
+                document.getElementById('view-login').classList.add('hidden');
+                document.getElementById('nav-tabs').classList.remove('hidden');
+                this.switchTab('home');
+            }
+            logout() {
+                localStorage.removeItem('na_uid');
+                localStorage.removeItem('na_uname');
+                location.reload();
+            }
+            switchTab(tab) {
+                // Stop active game if switching away from it
+                if(this.game && typeof this.game.stop === 'function') {
+                    // SAVE POINTS IF QUITTING GAME
+                    if(tab !== 'game' && this.currentGameType && this.game.score > 0) {
+                        this.db.saveResult(this.user.id, this.currentGameType, this.game.score);
+                        console.log("Saved partial score:", this.game.score);
+                    }
+                    this.game.stop();
+                    this.game = null;
+                    this.currentGameType = null;
+                }
+
+                ['home', 'stats', 'game'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
+
+                // Reset tab styles
+                document.getElementById('tab-home').className = "flex flex-col items-center p-2 w-full text-gray-400 transition duration-200 rounded-xl active:bg-blue-50";
+                document.getElementById('tab-stats').className = "flex flex-col items-center p-2 w-full text-gray-400 transition duration-200 rounded-xl active:bg-blue-50";
+
+                // NAVIGATION LOGIC UPDATE
+                const backBtn = document.getElementById('btn-global-back');
+
+                // Badge is now always visible
+                // But we still toggle Home/Back button visibility logic
+                if(tab === 'home') {
+                    if(backBtn) backBtn.classList.add('hidden');
+                    document.getElementById('view-home').classList.remove('hidden');
+                    document.getElementById('tab-home').className = "flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50";
+                }
+                else {
+                    if(backBtn) backBtn.classList.remove('hidden');
+                }
+
+                if(tab === 'stats') {
+                    document.getElementById('view-stats').classList.remove('hidden');
+                    document.getElementById('tab-stats').className = "flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50";
+                    this.loadStats();
+                }
+            }
+            startGame(type) {
+                if(this.game && typeof this.game.stop === 'function') {
+                    this.game.stop();
+                }
+
+                // Ensure nav consistency
+                this.switchTab('game'); // Reuse logic (hides home, shows back btn)
+
+                document.getElementById('view-game').classList.remove('hidden');
+
+                document.getElementById('game-score').innerText = '0';
+
+                const area = document.getElementById('game-area');
+                const msg = document.getElementById('game-message');
+                area.innerHTML = ''; // Limpiar previo
+                msg.innerHTML = 'Cargando...'; // Limpiar mensaje previo
+
+                this.currentGameType = type;
+
+                const onScore = (s) => document.getElementById('game-score').innerText = s;
+                const onEnd = (s) => {
+                    this.db.saveResult(this.user.id, type, s);
+                    // Clear current game type so switchTab doesn't save again
+                    this.currentGameType = null;
+                    this.showModal("¡Muy bien!", `Puntuación final: ${s}`, () => {
+                        this.switchTab('home');
+                    });
+                };
+
+                const games = {
+                    memoryMatrix: MemoryMatrixGame,
+                    spatialPath: SpatialPathGame,
+                    stroop: StroopGame,
+                    goNoGo: GoNoGoGame,
+                    languageOrder: LanguageOrderGame,
+                    wordAssoc: WordAssocGame,
+                    symbolSearch: SymbolSearchGame,
+                    mathOps: MathGame
+                };
+
+                if(games[type]) {
+                    this.game = new games[type](area, msg, onScore, onEnd);
+                    this.game.start();
+                }
+            }
+            showModal(title, msg, onConfirm) {
+                const m = document.getElementById('neuro-modal');
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-message').innerText = msg;
+                const btn = document.getElementById('modal-action');
+
+                // Reset button clone to clear listeners
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+
+                newBtn.onclick = () => {
+                    m.classList.add('hidden');
+                    if (onConfirm) onConfirm();
+                };
+
+                m.classList.remove('hidden');
+            }
+
+            loadStats() {
+                const data = this.db.getStats(this.user.id);
+                document.getElementById('global-score').innerText = data.totalScore;
+
+                const ctxRadar = document.getElementById('radarChart');
+                if(this.charts.radar) this.charts.radar.destroy();
+                this.charts.radar = new Chart(ctxRadar, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Memoria', 'Atención', 'Lenguaje', 'Agilidad Mental'],
+                        datasets: [{
+                            label: 'Nivel',
+                            data: [data.categoryScores['Memoria'], data.categoryScores['Atención'], data.categoryScores['Lenguaje'], data.categoryScores['Agilidad Mental']],
+                            backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                            borderColor: '#2563EB',
+                            pointBackgroundColor: '#2563EB',
+                            pointRadius: 6 // Larger points
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                suggestedMax: 100,
+                                pointLabels: { font: { size: 16 } }, // Larger labels
+                                ticks: { font: { size: 12 } }
+                            }
+                        }
+                    }
+                });
+
+                const ctxLine = document.getElementById('lineChart');
+                if(this.charts.line) this.charts.line.destroy();
+                this.charts.line = new Chart(ctxLine, {
+                    type: 'line',
+                    data: {
+                        labels: Object.keys(data.dailyScores),
+                        datasets: [{
+                            label: 'Puntos',
+                            data: Object.values(data.dailyScores),
+                            borderColor: '#10B981',
+                            backgroundColor: '#10B981',
+                            tension: 0.3,
+                            borderWidth: 3,
+                            pointRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { ticks: { font: { size: 14 } } },
+                            y: { ticks: { font: { size: 14 } } }
+                        }
+                    }
+                });
+            }
+        }
+
+        const app = new App();
+        window.onload = () => app.init();
+    </script>
+</body>
+</html>
