@@ -62,17 +62,17 @@
     <!-- HEADER -->
     <header class="bg-white shadow-md p-4 sticky top-0 z-50 flex-none">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <button id="btn-global-back" onclick="app.switchTab('home')" class="hidden text-gray-800 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg font-bold transition mr-2 flex items-center gap-2">
+            <div class="flex items-center gap-4 flex-1">
+                <button id="btn-global-back" onclick="app.switchTab('home')" class="hidden text-gray-800 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg font-bold transition flex items-center gap-2 flex-none">
                     <span>⬅</span> Atrás
                 </button>
-                <h1 class="text-2xl md:text-3xl font-bold text-neuro-primary flex items-center gap-2 truncate">
+                <h1 class="text-2xl md:text-3xl font-bold text-neuro-primary flex items-center gap-2 truncate flex-1">
                     🧠 NeuroActive
                 </h1>
             </div>
-            <div id="user-badge" class="hidden flex items-center gap-3">
+            <div id="user-badge" class="hidden flex items-center gap-3 flex-none">
                 <span class="text-base md:text-lg font-semibold bg-blue-100 text-blue-900 px-4 py-2 rounded-full truncate max-w-[150px]" id="header-username">Usuario</span>
-                <button onclick="app.logout()" class="text-red-600 font-bold border-2 border-red-200 px-3 py-2 rounded-lg text-sm md:text-base hover:bg-red-50 whitespace-nowrap min-h-[44px] min-w-[44px]">Salir</button>
+                <!-- Botón Salir Eliminado a petición del usuario -->
             </div>
         </div>
     </header>
@@ -696,21 +696,22 @@
 
         class LanguageOrderGame extends GameEngine {
             start() {
-                this.score = 0;
+                try {
+                    this.score = 0;
 
-                // Fetch completed and filter
-                const completed = app.db.getCompleted(app.user.id, 'languageOrder');
-                let available = GAME_CONTENT.languageOrder.filter(i => !completed.includes(i.id));
+                    const completed = app.db.getCompleted(app.user.id, 'languageOrder');
+                    let available = GAME_CONTENT.languageOrder.filter(i => !completed.includes(i.id));
 
-                // If all completed, maybe reset or just show message?
-                // For now, let's just replay all if all are done, but shuffle.
-                if(available.length === 0) {
-                    available = [...GAME_CONTENT.languageOrder];
+                    if(available.length === 0) {
+                        available = [...GAME_CONTENT.languageOrder];
+                    }
+
+                    this.queue = available.sort(() => Math.random() - 0.5);
+                    this.next();
+                } catch(e) {
+                    console.error("Language Game Start Error", e);
+                    this.message("Error cargando el juego", "text-red-600");
                 }
-
-                // Shuffle
-                this.queue = available.sort(() => Math.random() - 0.5);
-                this.next();
             }
             next() {
                 this.clear();
@@ -762,17 +763,22 @@
 
         class WordAssocGame extends GameEngine {
             start() {
-                this.score = 0;
+                try {
+                    this.score = 0;
 
-                const completed = app.db.getCompleted(app.user.id, 'wordAssoc');
-                let available = GAME_CONTENT.wordAssoc.filter(i => !completed.includes(i.id));
+                    const completed = app.db.getCompleted(app.user.id, 'wordAssoc');
+                    let available = GAME_CONTENT.wordAssoc.filter(i => !completed.includes(i.id));
 
-                if(available.length === 0) {
-                    available = [...GAME_CONTENT.wordAssoc];
+                    if(available.length === 0) {
+                        available = [...GAME_CONTENT.wordAssoc];
+                    }
+
+                    this.queue = available.sort(() => Math.random() - 0.5);
+                    this.next();
+                } catch(e) {
+                    console.error("Word Assoc Start Error", e);
+                    this.message("Error cargando el juego", "text-red-600");
                 }
-
-                this.queue = available.sort(() => Math.random() - 0.5);
-                this.next();
             }
             next() {
                 this.clear();
@@ -1159,19 +1165,16 @@
 
                 // NAVIGATION LOGIC UPDATE
                 const backBtn = document.getElementById('btn-global-back');
-                const userBadge = document.getElementById('user-badge');
 
+                // Badge is now always visible
+                // But we still toggle Home/Back button visibility logic
                 if(tab === 'home') {
                     if(backBtn) backBtn.classList.add('hidden');
-                    if(userBadge) userBadge.classList.remove('hidden'); // Show logout/user in home
-
                     document.getElementById('view-home').classList.remove('hidden');
                     document.getElementById('tab-home').className = "flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50";
                 }
                 else {
-                    // Stats or Game
                     if(backBtn) backBtn.classList.remove('hidden');
-                    if(userBadge) userBadge.classList.add('hidden'); // Hide logout in sub-screens
                 }
 
                 if(tab === 'stats') {
@@ -1186,10 +1189,8 @@
                 }
 
                 // Ensure nav consistency
-                this.switchTab('game'); // Reuse logic (hides home, shows back btn, hides badge)
+                this.switchTab('game'); // Reuse logic (hides home, shows back btn)
 
-                // But switchTab('game') shows nothing by default loop in 1st line of switchTab.
-                // We need to ensure view-game is shown.
                 document.getElementById('view-game').classList.remove('hidden');
 
                 document.getElementById('game-score').innerText = '0';
