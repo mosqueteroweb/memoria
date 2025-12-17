@@ -121,20 +121,6 @@
                 </div>
             </div>
 
-            <!-- Categoría: Cálculo -->
-            <div class="space-y-4">
-                <h3 class="text-xl font-bold text-orange-700 border-b-2 border-orange-200 pb-2 px-1">🧮 Cálculo</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                    <button onclick="app.startGame('mathOps')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-orange-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
-                        <div>
-                            <div class="font-bold text-xl group-hover:text-orange-700 transition-colors">Operaciones</div>
-                            <div class="text-base text-gray-600 mt-1">Cálculo mental rápido</div>
-                        </div>
-                        <span class="text-4xl">➕</span>
-                    </button>
-                </div>
-            </div>
-
             <!-- Categoría: Atención -->
             <div class="space-y-4">
                 <h3 class="text-xl font-bold text-green-700 border-b-2 border-green-200 pb-2 px-1">🟢 Control y Atención</h3>
@@ -177,9 +163,9 @@
                 </div>
             </div>
 
-            <!-- Categoría: Velocidad -->
+            <!-- Categoría: Agilidad Mental -->
             <div class="space-y-4">
-                <h3 class="text-xl font-bold text-purple-700 border-b-2 border-purple-200 pb-2 px-1">🟣 Velocidad Mental</h3>
+                <h3 class="text-xl font-bold text-purple-700 border-b-2 border-purple-200 pb-2 px-1">🟣 Agilidad Mental</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                     <button onclick="app.startGame('symbolSearch')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-purple-500 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
                         <div>
@@ -187,6 +173,13 @@
                             <div class="text-base text-gray-600 mt-1">Escaneo visual rápido</div>
                         </div>
                         <span class="text-4xl">⚡</span>
+                    </button>
+                    <button onclick="app.startGame('mathOps')" class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-purple-400 text-left hover:shadow-md btn-neuro flex justify-between items-center group min-h-[100px]">
+                        <div>
+                            <div class="font-bold text-xl group-hover:text-purple-600 transition-colors">Operaciones</div>
+                            <div class="text-base text-gray-600 mt-1">Cálculo mental rápido</div>
+                        </div>
+                        <span class="text-4xl">➕</span>
                     </button>
                 </div>
             </div>
@@ -277,8 +270,8 @@
             goNoGo:       { category: 'Atención', label: 'Semáforo' },
             languageOrder:{ category: 'Lenguaje', label: 'Frases' },
             wordAssoc:    { category: 'Lenguaje', label: 'Asociación' },
-            symbolSearch: { category: 'Velocidad', label: 'Símbolos' },
-            mathOps:      { category: 'Cálculo',   label: 'Operaciones' }
+            symbolSearch: { category: 'Agilidad Mental', label: 'Símbolos' },
+            mathOps:      { category: 'Agilidad Mental', label: 'Operaciones' }
         };
 
         class DatabaseManager {
@@ -374,7 +367,7 @@
                     const totalRes = this.db.exec(`SELECT SUM(score) FROM results WHERE user_id = ${userId}`);
                     const totalScore = totalRes[0]?.values[0][0] || 0;
                     const catRes = this.db.exec(`SELECT category, SUM(score) FROM results WHERE user_id = ${userId} GROUP BY category`);
-                    const categoryScores = { 'Memoria': 0, 'Atención': 0, 'Lenguaje': 0, 'Velocidad': 0 };
+                const categoryScores = { 'Memoria': 0, 'Atención': 0, 'Lenguaje': 0, 'Agilidad Mental': 0 };
                     if(catRes.length > 0) catRes[0].values.forEach(row => { categoryScores[row[0]] = row[1]; });
                     const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
                     const dailyRes = this.db.exec(`SELECT timestamp, score FROM results WHERE user_id = ${userId} AND timestamp > ${sevenDaysAgo}`);
@@ -388,7 +381,7 @@
                     // Fallback Logic
                     const userResults = this.localData.results.filter(r => r.user_id == userId);
                     const totalScore = userResults.reduce((sum, r) => sum + r.score, 0);
-                    const categoryScores = { 'Memoria': 0, 'Atención': 0, 'Lenguaje': 0, 'Velocidad': 0 };
+                    const categoryScores = { 'Memoria': 0, 'Atención': 0, 'Lenguaje': 0, 'Agilidad Mental': 0 };
                     userResults.forEach(r => {
                         if (categoryScores[r.category] !== undefined) categoryScores[r.category] += r.score;
                     });
@@ -1158,10 +1151,10 @@
                 this.charts.radar = new Chart(ctxRadar, {
                     type: 'radar',
                     data: {
-                        labels: ['Memoria', 'Atención', 'Lenguaje', 'Velocidad'],
+                        labels: ['Memoria', 'Atención', 'Lenguaje', 'Agilidad Mental'],
                         datasets: [{
                             label: 'Nivel',
-                            data: [data.categoryScores['Memoria'], data.categoryScores['Atención'], data.categoryScores['Lenguaje'], data.categoryScores['Velocidad']],
+                            data: [data.categoryScores['Memoria'], data.categoryScores['Atención'], data.categoryScores['Lenguaje'], data.categoryScores['Agilidad Mental']],
                             backgroundColor: 'rgba(37, 99, 235, 0.2)',
                             borderColor: '#2563EB',
                             pointBackgroundColor: '#2563EB',
