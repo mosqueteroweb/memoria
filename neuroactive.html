@@ -321,8 +321,9 @@
                         this.db = new this.SQL.Database(new Uint8Array(JSON.parse(savedDb)));
                     } else {
                         this.db = new this.SQL.Database();
-                        this.createTables();
                     }
+                    // Asegurar que las tablas existan (migración para usuarios antiguos)
+                    this.createTables();
                     return { success: true, mode: 'sql' };
                 } catch (e) {
                     console.warn("SQL.js falló, usando modo localStorage:", e);
