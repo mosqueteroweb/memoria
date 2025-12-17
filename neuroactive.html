@@ -905,101 +905,104 @@
                     let a = getRandomInt(2, 20);
 
                     if (op === '×') {
-                        // Max result < 100 constraint? User said "enteros de menos de 3 cifras".
-                        // So inputs < 100. Result can be anything? Usually inputs are small.
                         a = getRandomInt(2, 12);
                         b = getRandomInt(2, 9);
                     } else if (op === '÷') {
-                        a = a * b; // Ensure divisibility
+                        // Ensure a is multiple of b AND a <= 99
+                        // b * result = a. result can be anything, but a <= 99.
+                        // So b * (a/b) <= 99.
+                        // We generate result first?
+                        let q = getRandomInt(2, 12);
+                        b = getRandomInt(2, 9);
+                        while (q * b > 99) { q--; } // Adjust
+                        a = q * b;
                     }
 
                     return { expression: `${a} ${op} ${b}`, result: this.calc(a, b, op) };
                 }
                 else if (num === 3) {
-                    // A op1 B op2 C
-                    // Prefer High then Low: (A * B) + C
-                    // Or High then High: A * B / C
-                    let schema = Math.random() > 0.3 ? 'HL' : 'HH'; // 70% High-Low structure
+                    let schema = Math.random() > 0.3 ? 'HL' : 'HH';
                     if (schema === 'HL') {
                         let op1 = opsHigh[Math.floor(Math.random() * 2)];
                         let op2 = opsLow[Math.floor(Math.random() * 2)];
 
-                        let b = getRandomInt(2, 6);
+                        let b = getRandomInt(2, 9);
                         let a = getRandomInt(2, 9);
-                        let c = getRandomInt(1, 20);
+                        let c = getRandomInt(1, 50);
 
-                        if (op1 === '÷') a = a * b;
+                        if (op1 === '÷') {
+                            // A/B. A must be multiple of B and A <= 99.
+                            let q = getRandomInt(2, 9);
+                            if (q*b > 99) q = Math.floor(99/b);
+                            a = q * b;
+                        } else {
+                            // A*B. Must check A*B? Intermediate can be > 99?
+                            // User said "operandos", meaning the numbers shown. Result can be > 99?
+                            // Usually mental math keeps numbers reasonable.
+                        }
 
                         let inter = this.calc(a, b, op1);
                         return { expression: `${a} ${op1} ${b} ${op2} ${c}`, result: this.calc(inter, c, op2) };
                     } else {
-                        // HH -> A * B / C or A / B * C
+                        // HH -> A * B / C
                         // Avoid big numbers.
-                        let b = getRandomInt(2, 5);
-                        let c = getRandomInt(2, 5);
+                        let b = getRandomInt(2, 9);
+                        let c = getRandomInt(2, 9);
                         let a = getRandomInt(2, 20);
 
-                        // Try to construct valid chain
-                        // A op1 B op2 C
                         let op1 = Math.random() > 0.5 ? '×' : '÷';
-                        let op2 = Math.random() > 0.5 ? '×' : '÷';
+                        let op2 = '×'; // Simplification to ensure integers easily
 
-                        // Simplification: Fix structure to ensure integer at every step for simplicity?
-                        // Or just final result? Mental math implies step-by-step.
-                        // Let's do: (A * B) / C  or (A / B) * C
-
-                        if (op1 === '÷') a = a * b;
-                        let res1 = this.calc(a, b, op1);
-
-                        if (op2 === '÷') {
-                            // res1 must be divisible by c
-                            // Adjust res1? No, adjust a/b/c?
-                            // Easier: Generate Final Result and work backwards?
-                            // Let's retry brute force or simple construction
-                            // Construct: R = X * Y.  X = A/B.
-                            // Let's stick to HL for reliability or simple HH
-                            op2 = '×'; // Division then Mult is safe (integer wise mostly)
+                        if (op1 === '÷') {
+                            let q = getRandomInt(2, 12);
+                            if (q*b > 99) q = Math.floor(99/b);
+                            a = q * b;
                         }
 
+                        let res1 = this.calc(a, b, op1);
                         return { expression: `${a} ${op1} ${b} ${op2} ${c}`, result: this.calc(res1, c, op2) };
                     }
                 }
                 else {
                     // 4 nums: A op1 B op2 C op3 D
-                    // Structure: H H L (e.g. A * B / C + D)
                     let op1 = opsHigh[Math.floor(Math.random() * 2)];
                     let op2 = opsHigh[Math.floor(Math.random() * 2)];
                     let op3 = opsLow[Math.floor(Math.random() * 2)];
 
-                    let a = getRandomInt(2, 10);
-                    let b = getRandomInt(2, 5);
-                    let c = getRandomInt(2, 5);
+                    let a = getRandomInt(2, 15);
+                    let b = getRandomInt(2, 6);
+                    let c = getRandomInt(2, 6);
                     let d = getRandomInt(1, 50);
 
-                    // Force Op2 to be Mult if Op1 is Div to avoid fraction hell, or ensure divisibility
-                    // Chain: (A op1 B) op2 C
+                    if (op1 === '÷') {
+                        // Ensure A <= 99
+                        let q = getRandomInt(2, 12);
+                        if (q*b > 99) q = Math.floor(99/b);
+                        a = q * b;
+                    }
 
-                    if (op1 === '÷') a = a * b;
                     let r1 = this.calc(a, b, op1);
 
                     if (op2 === '÷') {
-                        // r1 must be divisible by c
-                        r1 = r1 * c;
-                        // Now we need A op1 B = r1.
-                        // If op1 was *, A*B = r1. Hard to adjust A,B.
-                        // Easier: Reset A, B.
-                        if (op1 === '×') {
-                            // A * B = r1. Factorize? Hard.
-                            // Let's allow Op2 to be * always if Op1 is / or * to simplify generation.
+                        // r1 must be divisible by c.
+                        // r1 = A op1 B.
+                        // We need (r1) % c == 0.
+                        // Hard to adjust A/B backwards without exploding A > 99.
+                        // Strategy: Change op2 to * if not divisible?
+                        // Or ensure r1 is multiple of c.
+
+                        // Simplest fix: Just allow * for op2 if op1 was /.
+                        if (r1 % c !== 0) {
                             op2 = '×';
-                        } else {
-                            // Op1 is /. A / B = r1.
-                            // We scaled r1 by C. So new A = r1 * B.
-                            a = r1 * b;
                         }
+                    } else {
+                        // If op2 is *, ensure intermediate doesn't explode too much?
+                        // It's mental math, we don't want 300 * 5.
+                        // But strictly user asked for operands < 100. 300 is result, not operand.
+                        // Operands are a, b, c, d. All generated < 99.
                     }
 
-                    // Recalculate r1 with adjusted numbers
+                    // Recalculate r1 just in case
                     r1 = this.calc(a, b, op1);
                     let r2 = this.calc(r1, c, op2);
                     let r3 = this.calc(r2, d, op3);
