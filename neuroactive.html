@@ -275,18 +275,39 @@
             mathOps:      { category: 'Agilidad Mental', label: 'Operaciones' }
         };
 
+        const GAME_CONTENT = {
+            languageOrder: [
+                { id: 'lo1', text: "El cielo es azul" },
+                { id: 'lo2', text: "Me gusta el pan" },
+                { id: 'lo3', text: "Hoy hace sol" },
+                { id: 'lo4', text: "El perro corre" },
+                { id: 'lo5', text: "La flor es roja" },
+                { id: 'lo6', text: "La luna brilla" },
+                { id: 'lo7', text: "El agua moja" },
+                { id: 'lo8', text: "Como frutas dulces" }
+            ],
+            wordAssoc: [
+                { id: 'wa1', type: "SINÓNIMO", w: "ALEGRE", opt: ["Triste", "Feliz", "Rápido"], ans: 1 },
+                { id: 'wa2', type: "ANTÓNIMO", w: "CALIENTE", opt: ["Frío", "Fuego", "Tibio"], ans: 0 },
+                { id: 'wa3', type: "SINÓNIMO", w: "AUTO", opt: ["Rueda", "Coche", "Camino"], ans: 1 },
+                { id: 'wa4', type: "ANTÓNIMO", w: "LLENO", opt: ["Vacío", "Todo", "Alto"], ans: 0 },
+                { id: 'wa5', type: "SINÓNIMO", w: "CASA", opt: ["Hogar", "Calle", "Techo"], ans: 0 }
+            ]
+        };
+
         class DatabaseManager {
             constructor() {
                 this.db = null;
                 this.SQL = null;
                 this.mode = 'unknown'; // 'sql' or 'local'
-                this.localData = { users: [], results: [] };
+                this.localData = { users: [], results: [], completed: [] };
             }
             async init() {
                 // Intentar cargar datos locales
                 const savedLocal = localStorage.getItem("neuroactive_local_fallback");
                 if (savedLocal) {
                     this.localData = JSON.parse(savedLocal);
+                    if(!this.localData.completed) this.localData.completed = [];
                 }
 
                 try {
@@ -311,7 +332,7 @@
             }
             createTables() {
                 if(this.mode !== 'sql') return;
-                this.db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT); CREATE TABLE IF NOT EXISTS results (id INTEGER PRIMARY KEY, user_id INTEGER, game_type TEXT, category TEXT, score INTEGER, timestamp INTEGER);`);
+                this.db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT); CREATE TABLE IF NOT EXISTS results (id INTEGER PRIMARY KEY, user_id INTEGER, game_type TEXT, category TEXT, score INTEGER, timestamp INTEGER); CREATE TABLE IF NOT EXISTS completed (user_id INTEGER, game_type TEXT, item_id TEXT, PRIMARY KEY (user_id, game_type, item_id));`);
                 this.save();
             }
             save() {
@@ -361,6 +382,30 @@
                         timestamp: Date.now()
                     });
                     this.save();
+                }
+            }
+            markCompleted(userId, gameType, itemId) {
+                if(this.mode === 'sql') {
+                    this.db.run("INSERT OR IGNORE INTO completed (user_id, game_type, item_id) VALUES (?, ?, ?)", [userId, gameType, itemId]);
+                    this.save();
+                } else {
+                    if(!this.localData.completed) this.localData.completed = [];
+                    const exists = this.localData.completed.some(c => c.user_id == userId && c.game_type == gameType && c.item_id == itemId);
+                    if(!exists) {
+                        this.localData.completed.push({user_id: userId, game_type: gameType, item_id: itemId});
+                        this.save();
+                    }
+                }
+            }
+            getCompleted(userId, gameType) {
+                if(this.mode === 'sql') {
+                    const res = this.db.exec(`SELECT item_id FROM completed WHERE user_id = ${userId} AND game_type = '${gameType}'`);
+                    if(res.length > 0) return res[0].values.map(v => v[0]);
+                    return [];
+                } else {
+                    return this.localData.completed
+                        .filter(c => c.user_id == userId && c.game_type == gameType)
+                        .map(c => c.item_id);
                 }
             }
             getStats(userId) {
@@ -651,15 +696,29 @@
 
         class LanguageOrderGame extends GameEngine {
             start() {
-                this.score = 0; this.qIdx = 0;
-                this.phrases = ["El cielo es azul", "Me gusta el pan", "Hoy hace sol", "El perro corre", "La flor es roja", "La luna brilla", "El agua moja", "Como frutas dulces"];
+                this.score = 0;
+
+                // Fetch completed and filter
+                const completed = app.db.getCompleted(app.user.id, 'languageOrder');
+                let available = GAME_CONTENT.languageOrder.filter(i => !completed.includes(i.id));
+
+                // If all completed, maybe reset or just show message?
+                // For now, let's just replay all if all are done, but shuffle.
+                if(available.length === 0) {
+                    available = [...GAME_CONTENT.languageOrder];
+                }
+
+                // Shuffle
+                this.queue = available.sort(() => Math.random() - 0.5);
                 this.next();
             }
             next() {
                 this.clear();
-                if(this.qIdx >= this.phrases.length) return this.end();
+                if(this.queue.length === 0) return this.end();
 
-                let target = this.phrases[this.qIdx];
+                this.currentItem = this.queue.pop();
+                let target = this.currentItem.text;
+
                 let words = target.split(' ').sort(() => Math.random()-0.5);
                 let current = [];
 
@@ -689,7 +748,9 @@
                             this.score += 20;
                             this.onScore(this.score);
                             this.message("¡Perfecto!", "text-green-600");
-                            this.qIdx++;
+                            // Mark completed
+                            app.db.markCompleted(app.user.id, 'languageOrder', this.currentItem.id);
+
                             this.tmOut = setTimeout(() => this.next(), 1200);
                         }
                     };
@@ -701,21 +762,25 @@
 
         class WordAssocGame extends GameEngine {
             start() {
-                this.score = 0; this.qIdx = 0;
-                this.data = [
-                    { type: "SINÓNIMO", w: "ALEGRE", opt: ["Triste", "Feliz", "Rápido"], ans: 1 },
-                    { type: "ANTÓNIMO", w: "CALIENTE", opt: ["Frío", "Fuego", "Tibio"], ans: 0 },
-                    { type: "SINÓNIMO", w: "AUTO", opt: ["Rueda", "Coche", "Camino"], ans: 1 },
-                    { type: "ANTÓNIMO", w: "LLENO", opt: ["Vacío", "Todo", "Alto"], ans: 0 },
-                    { type: "SINÓNIMO", w: "CASA", opt: ["Hogar", "Calle", "Techo"], ans: 0 }
-                ];
+                this.score = 0;
+
+                const completed = app.db.getCompleted(app.user.id, 'wordAssoc');
+                let available = GAME_CONTENT.wordAssoc.filter(i => !completed.includes(i.id));
+
+                if(available.length === 0) {
+                    available = [...GAME_CONTENT.wordAssoc];
+                }
+
+                this.queue = available.sort(() => Math.random() - 0.5);
                 this.next();
             }
             next() {
                 this.clear();
-                if(this.qIdx >= this.data.length) return this.end();
+                if(this.queue.length === 0) return this.end();
 
-                let q = this.data[this.qIdx];
+                this.currentItem = this.queue.pop();
+                let q = this.currentItem;
+
                 this.message(`Busca el ${q.type} de:`);
                 this.container.className = "flex flex-col items-center w-full";
 
@@ -736,10 +801,11 @@
                             this.score += 15;
                             this.onScore(this.score);
                             this.message("Correcto", "text-green-600");
+                            // Mark completed
+                            app.db.markCompleted(app.user.id, 'wordAssoc', q.id);
                         } else {
                             this.message("Incorrecto", "text-red-600");
                         }
-                        this.qIdx++;
                         this.tmOut = setTimeout(() => this.next(), 1200);
                     };
                     grid.appendChild(b);
@@ -1091,18 +1157,23 @@
                 document.getElementById('tab-home').className = "flex flex-col items-center p-2 w-full text-gray-400 transition duration-200 rounded-xl active:bg-blue-50";
                 document.getElementById('tab-stats').className = "flex flex-col items-center p-2 w-full text-gray-400 transition duration-200 rounded-xl active:bg-blue-50";
 
-                // Toggle Back Button in Header
+                // NAVIGATION LOGIC UPDATE
                 const backBtn = document.getElementById('btn-global-back');
-                if (tab === 'game') {
-                    if(backBtn) backBtn.classList.remove('hidden');
-                } else {
-                    if(backBtn) backBtn.classList.add('hidden');
-                }
+                const userBadge = document.getElementById('user-badge');
 
                 if(tab === 'home') {
+                    if(backBtn) backBtn.classList.add('hidden');
+                    if(userBadge) userBadge.classList.remove('hidden'); // Show logout/user in home
+
                     document.getElementById('view-home').classList.remove('hidden');
                     document.getElementById('tab-home').className = "flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50";
                 }
+                else {
+                    // Stats or Game
+                    if(backBtn) backBtn.classList.remove('hidden');
+                    if(userBadge) userBadge.classList.add('hidden'); // Hide logout in sub-screens
+                }
+
                 if(tab === 'stats') {
                     document.getElementById('view-stats').classList.remove('hidden');
                     document.getElementById('tab-stats').className = "flex flex-col items-center p-2 w-full text-neuro-primary transition duration-200 rounded-xl active:bg-blue-50";
@@ -1114,14 +1185,13 @@
                     this.game.stop();
                 }
 
-                // Switch Logic handled here manually partly, but let's ensure we use switchTab logic or manual overrides if needed.
-                // Actually, switchTab hides everything. startGame reveals view-game.
-                // We need to ensure the back button is shown.
-                const backBtn = document.getElementById('btn-global-back');
-                if(backBtn) backBtn.classList.remove('hidden');
+                // Ensure nav consistency
+                this.switchTab('game'); // Reuse logic (hides home, shows back btn, hides badge)
 
-                document.getElementById('view-home').classList.add('hidden');
+                // But switchTab('game') shows nothing by default loop in 1st line of switchTab.
+                // We need to ensure view-game is shown.
                 document.getElementById('view-game').classList.remove('hidden');
+
                 document.getElementById('game-score').innerText = '0';
 
                 const area = document.getElementById('game-area');
