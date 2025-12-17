@@ -72,6 +72,7 @@
             </div>
             <div id="user-badge" class="hidden flex items-center gap-3">
                 <span class="text-base md:text-lg font-semibold bg-blue-100 text-blue-900 px-4 py-2 rounded-full truncate max-w-[150px]" id="header-username">Usuario</span>
+                <button onclick="app.logout()" class="text-red-600 font-bold border-2 border-red-200 px-3 py-2 rounded-lg text-sm md:text-base hover:bg-red-50 whitespace-nowrap min-h-[44px] min-w-[44px]">Salir</button>
             </div>
         </div>
     </header>
@@ -1025,6 +1026,7 @@
                 this.db = new DatabaseManager();
                 this.user = null;
                 this.charts = {};
+                this.currentGameType = null;
             }
             async init() {
                 const statusEl = document.getElementById('db-status');
@@ -1073,8 +1075,14 @@
             switchTab(tab) {
                 // Stop active game if switching away from it
                 if(this.game && typeof this.game.stop === 'function') {
+                    // SAVE POINTS IF QUITTING GAME
+                    if(tab !== 'game' && this.currentGameType && this.game.score > 0) {
+                        this.db.saveResult(this.user.id, this.currentGameType, this.game.score);
+                        console.log("Saved partial score:", this.game.score);
+                    }
                     this.game.stop();
                     this.game = null;
+                    this.currentGameType = null;
                 }
 
                 ['home', 'stats', 'game'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
@@ -1086,9 +1094,9 @@
                 // Toggle Back Button in Header
                 const backBtn = document.getElementById('btn-global-back');
                 if (tab === 'game') {
-                    backBtn.classList.remove('hidden');
+                    if(backBtn) backBtn.classList.remove('hidden');
                 } else {
-                    backBtn.classList.add('hidden');
+                    if(backBtn) backBtn.classList.add('hidden');
                 }
 
                 if(tab === 'home') {
@@ -1109,7 +1117,8 @@
                 // Switch Logic handled here manually partly, but let's ensure we use switchTab logic or manual overrides if needed.
                 // Actually, switchTab hides everything. startGame reveals view-game.
                 // We need to ensure the back button is shown.
-                document.getElementById('btn-global-back').classList.remove('hidden');
+                const backBtn = document.getElementById('btn-global-back');
+                if(backBtn) backBtn.classList.remove('hidden');
 
                 document.getElementById('view-home').classList.add('hidden');
                 document.getElementById('view-game').classList.remove('hidden');
@@ -1120,9 +1129,13 @@
                 area.innerHTML = ''; // Limpiar previo
                 msg.innerHTML = 'Cargando...'; // Limpiar mensaje previo
 
+                this.currentGameType = type;
+
                 const onScore = (s) => document.getElementById('game-score').innerText = s;
                 const onEnd = (s) => {
                     this.db.saveResult(this.user.id, type, s);
+                    // Clear current game type so switchTab doesn't save again
+                    this.currentGameType = null;
                     this.showModal("¡Muy bien!", `Puntuación final: ${s}`, () => {
                         this.switchTab('home');
                     });
