@@ -1,6 +1,6 @@
 // Datos de configuración y contenido para NeuroActive
 
-const GAME_CONFIG = {
+var GAME_CONFIG = {
     memoryMatrix: { category: 'Memoria', label: 'Matriz' },
     spatialPath:  { category: 'Memoria', label: 'Ruta' },
     stroop:       { category: 'Atención', label: 'Stroop' },
@@ -11,7 +11,7 @@ const GAME_CONFIG = {
     mathOps:      { category: 'Agilidad Mental', label: 'Operaciones' }
 };
 
-const GAME_DATA = {
+var GAME_DATA = {
     stroop: {
         colors: [
             {n:'ROJO', c:'text-red-600'},
@@ -44,3 +44,7 @@ const GAME_DATA = {
         symbols: ['★', '●', '■', '▲', '♦', '♥', '♣', '♠']
     }
 };
+
+// Asegurar disponibilidad global
+window.GAME_CONFIG = GAME_CONFIG;
+window.GAME_DATA = GAME_DATA;
