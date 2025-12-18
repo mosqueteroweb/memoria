@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563EB">
     <title>NeuroActive 2.2 - Senior Edition</title>
+
+    <script src="game_data.js"></script>
 
     <!-- Carga de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -264,17 +268,6 @@
 
     <!-- SCRIPTS -->
     <script>
-        const GAME_CONFIG = {
-            memoryMatrix: { category: 'Memoria', label: 'Matriz' },
-            spatialPath:  { category: 'Memoria', label: 'Ruta' },
-            stroop:       { category: 'Atención', label: 'Stroop' },
-            goNoGo:       { category: 'Atención', label: 'Semáforo' },
-            languageOrder:{ category: 'Lenguaje', label: 'Frases' },
-            wordAssoc:    { category: 'Lenguaje', label: 'Asociación' },
-            symbolSearch: { category: 'Agilidad Mental', label: 'Símbolos' },
-            mathOps:      { category: 'Agilidad Mental', label: 'Operaciones' }
-        };
-
         class DatabaseManager {
             constructor() {
                 this.db = null;
@@ -548,11 +541,9 @@
                 if(this.rounds >= 10) return this.end();
                 this.message("¿De qué COLOR es la tinta?");
 
-                const colors = [
-                    {n:'ROJO', c:'text-red-600'}, {n:'AZUL', c:'text-blue-600'}, {n:'VERDE', c:'text-green-600'}
-                ];
-                let txtIdx = Math.floor(Math.random()*3);
-                let colIdx = Math.random() > 0.4 ? (txtIdx + 1)%3 : txtIdx;
+                const colors = GAME_DATA.stroop.colors;
+                let txtIdx = Math.floor(Math.random()*colors.length);
+                let colIdx = Math.random() > 0.4 ? (txtIdx + 1)%colors.length : txtIdx;
 
                 this.container.className = "flex flex-col items-center w-full";
 
@@ -652,7 +643,7 @@
         class LanguageOrderGame extends GameEngine {
             start() {
                 this.score = 0; this.qIdx = 0;
-                this.phrases = ["El cielo es azul", "Me gusta el pan", "Hoy hace sol", "El perro corre", "La flor es roja", "La luna brilla", "El agua moja", "Como frutas dulces"];
+                this.phrases = GAME_DATA.languageOrder.phrases;
                 this.next();
             }
             next() {
@@ -702,13 +693,7 @@
         class WordAssocGame extends GameEngine {
             start() {
                 this.score = 0; this.qIdx = 0;
-                this.data = [
-                    { type: "SINÓNIMO", w: "ALEGRE", opt: ["Triste", "Feliz", "Rápido"], ans: 1 },
-                    { type: "ANTÓNIMO", w: "CALIENTE", opt: ["Frío", "Fuego", "Tibio"], ans: 0 },
-                    { type: "SINÓNIMO", w: "AUTO", opt: ["Rueda", "Coche", "Camino"], ans: 1 },
-                    { type: "ANTÓNIMO", w: "LLENO", opt: ["Vacío", "Todo", "Alto"], ans: 0 },
-                    { type: "SINÓNIMO", w: "CASA", opt: ["Hogar", "Calle", "Techo"], ans: 0 }
-                ];
+                this.data = GAME_DATA.wordAssoc.questions;
                 this.next();
             }
             next() {
@@ -768,7 +753,7 @@
                 this.clear();
                 if(!this.active) return;
 
-                const symbols = ['★', '●', '■', '▲', '♦', '♥', '♣', '♠'];
+                const symbols = GAME_DATA.symbolSearch.symbols;
                 const target = symbols[Math.floor(Math.random()*symbols.length)];
 
                 this.container.className = "flex flex-col items-center w-full max-w-sm mx-auto";
@@ -1237,7 +1222,14 @@
         }
 
         const app = new App();
-        window.onload = () => app.init();
+        window.onload = () => {
+            app.init();
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registrado', reg))
+                    .catch(err => console.error('Error SW', err));
+            }
+        };
     </script>
 </body>
 </html>
