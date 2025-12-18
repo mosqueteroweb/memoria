@@ -7,7 +7,7 @@ def verify_app(page):
 
     # Check title
     print("Checking title...")
-    expect(page).to_have_title("NeuroActive 2.2 - Senior Edition")
+    expect(page).to_have_title("Neuroactive Senior v2.4")
 
     # Login
     print("Performing login...")
@@ -37,7 +37,7 @@ def verify_app(page):
     expect(page.get_by_role("button", name="AZUL")).to_be_visible()
     expect(page.get_by_role("button", name="VERDE")).to_be_visible()
 
-    page.screenshot(path="verification/stroop_verification.png")
+    page.screenshot(path="verification/stroop_verification_updated.png")
     print("Stroop verification screenshot saved.")
 
     # Go back
@@ -64,7 +64,7 @@ def verify_app(page):
     if count == 0:
         raise Exception("No buttons found in Language Order game!")
 
-    page.screenshot(path="verification/language_verification.png")
+    page.screenshot(path="verification/language_verification_updated.png")
     print("Language verification screenshot saved.")
 
 if __name__ == "__main__":
