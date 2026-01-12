@@ -1160,6 +1160,16 @@
 
                 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
+                // Helper to find a divisor for n within range [min, max]
+                const getDivisor = (n, min, max) => {
+                    let candidates = [];
+                    for(let i=min; i<=max; i++) {
+                        if(n % i === 0) candidates.push(i);
+                    }
+                    if(candidates.length === 0) return null;
+                    return candidates[Math.floor(Math.random() * candidates.length)];
+                };
+
                 let terms = [];
                 let ops = [];
 
@@ -1202,10 +1212,6 @@
                             let q = getRandomInt(2, 9);
                             if (q*b > 99) q = Math.floor(99/b);
                             a = q * b;
-                        } else {
-                            // A*B. Must check A*B? Intermediate can be > 99?
-                            // User said "operandos", meaning the numbers shown. Result can be > 99?
-                            // Usually mental math keeps numbers reasonable.
                         }
 
                         let inter = this.calc(a, b, op1);
@@ -1218,7 +1224,7 @@
                         let a = getRandomInt(2, 20);
 
                         let op1 = Math.random() > 0.5 ? '×' : '÷';
-                        let op2 = '×'; // Simplification to ensure integers easily
+                        let op2 = Math.random() > 0.5 ? '×' : '÷';
 
                         if (op1 === '÷') {
                             let q = getRandomInt(2, 12);
@@ -1227,6 +1233,17 @@
                         }
 
                         let res1 = this.calc(a, b, op1);
+
+                        if (op2 === '÷') {
+                            // Try to find a valid C that divides res1
+                            let newC = getDivisor(res1, 2, 9);
+                            if (newC) {
+                                c = newC;
+                            } else {
+                                op2 = '×';
+                            }
+                        }
+
                         return { expression: `${a} ${op1} ${b} ${op2} ${c}`, result: this.calc(res1, c, op2) };
                     }
                 }
@@ -1251,26 +1268,18 @@
                     let r1 = this.calc(a, b, op1);
 
                     if (op2 === '÷') {
-                        // r1 must be divisible by c.
-                        // r1 = A op1 B.
-                        // We need (r1) % c == 0.
-                        // Hard to adjust A/B backwards without exploding A > 99.
-                        // Strategy: Change op2 to * if not divisible?
-                        // Or ensure r1 is multiple of c.
-
-                        // Simplest fix: Just allow * for op2 if op1 was /.
-                        if (r1 % c !== 0) {
+                        // Logic extension: Try to keep division if possible
+                        // Strategy: Check if r1 has a divisor in range [2, 9] (slightly expanded range for better hits)
+                        // If so, set c to that divisor. If not, switch to multiply.
+                        let newC = getDivisor(r1, 2, 9);
+                        if (newC) {
+                            c = newC;
+                        } else {
                             op2 = '×';
                         }
-                    } else {
-                        // If op2 is *, ensure intermediate doesn't explode too much?
-                        // It's mental math, we don't want 300 * 5.
-                        // But strictly user asked for operands < 100. 300 is result, not operand.
-                        // Operands are a, b, c, d. All generated < 99.
                     }
 
-                    // Recalculate r1 just in case
-                    r1 = this.calc(a, b, op1);
+                    // Recalculate r1 just in case (no change needed as a,b,op1 preserved)
                     let r2 = this.calc(r1, c, op2);
                     let r3 = this.calc(r2, d, op3);
 
