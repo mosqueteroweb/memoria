@@ -484,7 +484,8 @@
                 { id: 'wa98', type: "ANTÓNIMO", w: "PADRE", opt: ["Hijo", "Abuelo", "Madre"], ans: 0 },
                 { id: 'wa99', type: "SINÓNIMO", w: "COLEGIO", opt: ["Escuela", "Aula", "Clase"], ans: 0 },
                 { id: 'wa100', type: "ANTÓNIMO", w: "SUMAR", opt: ["Restar", "Contar", "Añadir"], ans: 0 }
-            ]
+            ],
+            symbolSearch: ['★', '●', '■', '▲', '♦', '♥', '♣', '♠']
         };
 
         class DatabaseManager {
@@ -1034,7 +1035,7 @@
                 this.clear();
                 if(!this.active) return;
 
-                const symbols = ['★', '●', '■', '▲', '♦', '♥', '♣', '♠'];
+                const symbols = GAME_CONTENT.symbolSearch;
                 const target = symbols[Math.floor(Math.random()*symbols.length)];
 
                 this.container.className = "flex flex-col items-center w-full max-w-sm mx-auto";
