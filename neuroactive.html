@@ -893,8 +893,8 @@
                 try {
                     this.score = 0;
 
-                    const completed = app.db.getCompleted(app.user.id, 'languageOrder');
-                    let available = GAME_CONTENT.languageOrder.filter(i => !completed.includes(i.id));
+                    const completedSet = new Set(app.db.getCompleted(app.user.id, 'languageOrder'));
+                    let available = GAME_CONTENT.languageOrder.filter(i => !completedSet.has(i.id));
 
                     if(available.length === 0) {
                         available = [...GAME_CONTENT.languageOrder];
@@ -960,8 +960,8 @@
                 try {
                     this.score = 0;
 
-                    const completed = app.db.getCompleted(app.user.id, 'wordAssoc');
-                    let available = GAME_CONTENT.wordAssoc.filter(i => !completed.includes(i.id));
+                    const completedSet = new Set(app.db.getCompleted(app.user.id, 'wordAssoc'));
+                    let available = GAME_CONTENT.wordAssoc.filter(i => !completedSet.has(i.id));
 
                     if(available.length === 0) {
                         available = [...GAME_CONTENT.wordAssoc];
