@@ -1170,121 +1170,117 @@
                     return candidates[Math.floor(Math.random() * candidates.length)];
                 };
 
-                let terms = [];
-                let ops = [];
+                let attempt = 0;
+                while(attempt < 20) {
+                    attempt++;
+                    let exprStr = "";
+                    let result = 0;
 
-                // We build the expression strictly ensuring integer division
-
-                if (num === 2) {
-                    // A op B
-                    let op = [...opsHigh, ...opsLow][Math.floor(Math.random() * 4)];
-                    let b = getRandomInt(2, 9); // Keep single digit for ease? Or up to 20.
-                    let a = getRandomInt(2, 20);
-
-                    if (op === '×') {
-                        a = getRandomInt(2, 12);
-                        b = getRandomInt(2, 9);
-                    } else if (op === '-') {
-                        if (b > a) { let t = a; a = b; b = t; } // Swap to avoid negative
-                    } else if (op === '÷') {
-                        // Ensure a is multiple of b AND a <= 99
-                        let q = getRandomInt(2, 12);
-                        b = getRandomInt(2, 9);
-                        // Calculate q directly to satisfy constraint instead of looping
-                        if (q * b > 99) q = Math.floor(99 / b);
-                        a = q * b;
-                    }
-
-                    return { expression: `${a} ${op} ${b}`, result: this.calc(a, b, op) };
-                }
-                else if (num === 3) {
-                    let schema = Math.random() > 0.3 ? 'HL' : 'HH';
-                    if (schema === 'HL') {
-                        let op1 = opsHigh[Math.floor(Math.random() * 2)];
-                        let op2 = opsLow[Math.floor(Math.random() * 2)];
-
+                    if (num === 2) {
+                        // A op B
+                        let op = [...opsHigh, ...opsLow][Math.floor(Math.random() * 4)];
                         let b = getRandomInt(2, 9);
-                        let a = getRandomInt(2, 9);
-                        let c = getRandomInt(1, 50);
-
-                        if (op1 === '÷') {
-                            // A/B. A must be multiple of B and A <= 99.
-                            let q = getRandomInt(2, 9);
-                            if (q*b > 99) q = Math.floor(99/b);
-                            a = q * b;
-                        }
-
-                        let inter = this.calc(a, b, op1);
-                        return { expression: `${a} ${op1} ${b} ${op2} ${c}`, result: this.calc(inter, c, op2) };
-                    } else {
-                        // HH -> A * B / C
-                        // Avoid big numbers.
-                        let b = getRandomInt(2, 9);
-                        let c = getRandomInt(2, 9);
                         let a = getRandomInt(2, 20);
 
-                        let op1 = Math.random() > 0.5 ? '×' : '÷';
-                        let op2 = Math.random() > 0.5 ? '×' : '÷';
+                        if (op === '×') {
+                            a = getRandomInt(2, 12);
+                            b = getRandomInt(2, 9);
+                        } else if (op === '-') {
+                            if (b > a) { let t = a; a = b; b = t; }
+                        } else if (op === '÷') {
+                            let q = getRandomInt(2, 12);
+                            if (q * b > 99) q = Math.floor(99 / b);
+                            a = q * b;
+                        }
+                        exprStr = `${a} ${op} ${b}`;
+                        result = this.calc(a, b, op);
+
+                    } else if (num === 3) {
+                        let schema = Math.random() > 0.3 ? 'HL' : 'HH';
+                        let op1, op2, a, b, c;
+
+                        if (schema === 'HL') {
+                            op1 = opsHigh[Math.floor(Math.random() * 2)];
+                            op2 = opsLow[Math.floor(Math.random() * 2)];
+                            b = getRandomInt(2, 9);
+                            a = getRandomInt(2, 9);
+                            c = getRandomInt(1, 50);
+
+                            if (op1 === '÷') {
+                                let q = getRandomInt(2, 9);
+                                if (q*b > 99) q = Math.floor(99/b);
+                                a = q * b;
+                            }
+                            let inter = this.calc(a, b, op1);
+                            result = this.calc(inter, c, op2);
+                            exprStr = `${a} ${op1} ${b} ${op2} ${c}`;
+
+                        } else {
+                            // HH
+                            b = getRandomInt(2, 9);
+                            c = getRandomInt(2, 9);
+                            a = getRandomInt(2, 20);
+                            op1 = Math.random() > 0.5 ? '×' : '÷';
+                            op2 = Math.random() > 0.5 ? '×' : '÷';
+
+                            if (op1 === '÷') {
+                                let q = getRandomInt(2, 12);
+                                if (q*b > 99) q = Math.floor(99/b);
+                                a = q * b;
+                            }
+                            let res1 = this.calc(a, b, op1);
+
+                            if (op2 === '÷') {
+                                let newC = getDivisor(res1, 2, 9);
+                                if (newC) {
+                                    c = newC;
+                                } else {
+                                    op2 = '×';
+                                }
+                            }
+                            result = this.calc(res1, c, op2);
+                            exprStr = `${a} ${op1} ${b} ${op2} ${c}`;
+                        }
+
+                    } else {
+                        // 4 nums
+                        let op1 = opsHigh[Math.floor(Math.random() * 2)];
+                        let op2 = opsHigh[Math.floor(Math.random() * 2)];
+                        let op3 = opsLow[Math.floor(Math.random() * 2)];
+
+                        let a = getRandomInt(2, 15);
+                        let b = getRandomInt(2, 6);
+                        let c = getRandomInt(2, 6);
+                        let d = getRandomInt(1, 50);
 
                         if (op1 === '÷') {
                             let q = getRandomInt(2, 12);
                             if (q*b > 99) q = Math.floor(99/b);
                             a = q * b;
                         }
-
-                        let res1 = this.calc(a, b, op1);
+                        let r1 = this.calc(a, b, op1);
 
                         if (op2 === '÷') {
-                            // Try to find a valid C that divides res1
-                            let newC = getDivisor(res1, 2, 9);
+                            let newC = getDivisor(r1, 2, 9);
                             if (newC) {
                                 c = newC;
                             } else {
                                 op2 = '×';
                             }
                         }
+                        let r2 = this.calc(r1, c, op2);
+                        result = this.calc(r2, d, op3);
+                        exprStr = `${a} ${op1} ${b} ${op2} ${c} ${op3} ${d}`;
+                    }
 
-                        return { expression: `${a} ${op1} ${b} ${op2} ${c}`, result: this.calc(res1, c, op2) };
+                    // Check bounds constraints: Integer, >= 0, < 99
+                    if(Number.isInteger(result) && result >= 0 && result < 99) {
+                        return { expression: exprStr, result: result };
                     }
                 }
-                else {
-                    // 4 nums: A op1 B op2 C op3 D
-                    let op1 = opsHigh[Math.floor(Math.random() * 2)];
-                    let op2 = opsHigh[Math.floor(Math.random() * 2)];
-                    let op3 = opsLow[Math.floor(Math.random() * 2)];
 
-                    let a = getRandomInt(2, 15);
-                    let b = getRandomInt(2, 6);
-                    let c = getRandomInt(2, 6);
-                    let d = getRandomInt(1, 50);
-
-                    if (op1 === '÷') {
-                        // Ensure A <= 99
-                        let q = getRandomInt(2, 12);
-                        if (q*b > 99) q = Math.floor(99/b);
-                        a = q * b;
-                    }
-
-                    let r1 = this.calc(a, b, op1);
-
-                    if (op2 === '÷') {
-                        // Logic extension: Try to keep division if possible
-                        // Strategy: Check if r1 has a divisor in range [2, 9] (slightly expanded range for better hits)
-                        // If so, set c to that divisor. If not, switch to multiply.
-                        let newC = getDivisor(r1, 2, 9);
-                        if (newC) {
-                            c = newC;
-                        } else {
-                            op2 = '×';
-                        }
-                    }
-
-                    // Recalculate r1 just in case (no change needed as a,b,op1 preserved)
-                    let r2 = this.calc(r1, c, op2);
-                    let r3 = this.calc(r2, d, op3);
-
-                    return { expression: `${a} ${op1} ${b} ${op2} ${c} ${op3} ${d}`, result: r3 };
-                }
+                // Fallback safe expression if retries fail
+                return { expression: "10 + 10", result: 20 };
             }
 
             calc(a, b, op) {
